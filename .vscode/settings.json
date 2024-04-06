@@ -1,7 +1,19 @@
 {
-    "workbench.colorCustomizations": {
-        "activityBar.background": "#243205",
-        "titleBar.activeBackground": "#324607",
-        "titleBar.activeForeground": "#F7FDE9"
-    }
+  "workbench.colorCustomizations": {
+    "activityBar.background": "#243205",
+    "titleBar.activeBackground": "#324607",
+    "titleBar.activeForeground": "#F7FDE9"
+  },
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit",
+    "source.fixAll.eslint": "explicit"
+  },
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
+  "eslint.format.enable": true,
+  "editor.formatOnSave": true
 }

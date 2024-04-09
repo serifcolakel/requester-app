@@ -1,38 +1,18 @@
 import React from "react";
-import { Archive, GalleryThumbnails, LayoutDashboard } from "lucide-react";
 import { Metadata } from "next";
 import Image from "next/image";
-import Link from "next/link";
 import { redirect, RedirectType } from "next/navigation";
 
+import DashboardNavigation from "@/components/dashboard-navigation";
 import { EnvironmentSwitcher } from "@/components/environment-switcher";
-import { Label } from "@/components/ui/label";
 import { UserNav } from "@/components/user-nav";
 import { paths } from "@/constants/paths";
 import { getUser } from "@/services/auth";
 
 export const metadata: Metadata = {
-  title: "Requester Application Dashboard",
+  title: "Requester - Dashboard",
   description: "Manage your requests with ease.",
 };
-
-const links = [
-  {
-    href: paths.dashboard.index,
-    text: "Dashboard",
-    icon: LayoutDashboard,
-  },
-  {
-    href: paths.dashboard.collections,
-    text: "Collections",
-    icon: Archive,
-  },
-  {
-    href: paths.dashboard.environments,
-    text: "Environments",
-    icon: GalleryThumbnails,
-  },
-];
 
 export default async function DashboardLayout({
   children,
@@ -46,7 +26,7 @@ export default async function DashboardLayout({
   }
 
   return (
-    <main className="p-2  h-screen">
+    <main className="p-2 h-screen">
       <section className="flex border rounded-lg h-full">
         <aside className="w-32 flex flex-col gap-y-2 border-r p-2 h-full">
           <div className="flex justify-center items-center h-16 w-full">
@@ -60,25 +40,16 @@ export default async function DashboardLayout({
               width={40}
             />
           </div>
-          {links.map(({ href, text, icon: Icon }) => (
-            <Link
-              className="px-4 bg-gray-50 py-4 gap-y-2 flex flex-col items-center justify-center rounded-lg hover:bg-gray-100"
-              href={href}
-              key={href}
-              locale={false}
-            >
-              <Icon className="h-5 w-5" />
-              <Label variant="label-sm">{text}</Label>
-            </Link>
-          ))}
+          <DashboardNavigation />
         </aside>
-        <section className="w-full">
-          <div className="p-2 border-b w-full flex flex-row gap-x-4">
-            <EnvironmentSwitcher />
+        <section className="w-full h-full">
+          <div className="h-14 p-2 border-b w-full flex flex-row gap-x-4 items-center justify-between">
             <EnvironmentSwitcher />
             <UserNav />
           </div>
-          {children}
+          <div className="w-full h-[calc(100%-56px)] overflow-y-auto">
+            {children}
+          </div>
         </section>
       </section>
     </main>

@@ -33,10 +33,7 @@ export default async function Page() {
   const { data: collections = [] } = await getCollections();
 
   return (
-    <ResizablePanelGroup
-      className="h-screen items-stretch"
-      direction="horizontal"
-    >
+    <ResizablePanelGroup className="items-stretch" direction="horizontal">
       <ResizablePanel collapsible className="" minSize={15}>
         <div className="flex flex-row items-center justify-between px-2 py-4 gap-x-2">
           <TooltipProvider key="new collection">

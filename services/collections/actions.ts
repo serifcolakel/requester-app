@@ -15,7 +15,7 @@ export const getCollections = cache(
   async () => {
     const user = await getUser();
 
-    if (!user) {
+    if (!user?.id) {
       return {
         data: null,
         message: "Collections not retrieved",
@@ -23,14 +23,14 @@ export const getCollections = cache(
       };
     }
 
-    const collections = await getUserCollections(user.id);
+    const collections = await getUserCollections(user?.id);
 
     return collections;
   },
   [],
   {
     tags: [TAGS.COLLECTION.ALL],
-    revalidate: 60,
+    revalidate: 2,
   }
 );
 
@@ -51,13 +51,13 @@ export const createNewCollection = async (formData: FormData) => {
 
   const name = String(formData.get("name"));
 
-  if (!user || !name) {
+  if (!user?.id || !name) {
     return null;
   }
 
   const collection = await createCollection({
     name,
-    userId: user.id,
+    userId: user?.id,
   });
 
   revalidateTag(TAGS.COLLECTION.ALL);

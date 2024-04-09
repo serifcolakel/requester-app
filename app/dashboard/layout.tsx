@@ -1,12 +1,15 @@
 import React from "react";
 import { Archive, GalleryThumbnails, LayoutDashboard } from "lucide-react";
 import { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
-import { UserButton } from "@clerk/nextjs";
+import { redirect, RedirectType } from "next/navigation";
 
 import { EnvironmentSwitcher } from "@/components/environment-switcher";
 import { Label } from "@/components/ui/label";
+import { UserNav } from "@/components/user-nav";
 import { paths } from "@/constants/paths";
+import { getUser } from "@/services/auth";
 
 export const metadata: Metadata = {
   title: "Requester Application Dashboard",
@@ -31,17 +34,31 @@ const links = [
   },
 ];
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const user = await getUser();
+
+  if (!user) {
+    return redirect(paths.login, RedirectType.replace);
+  }
+
   return (
     <main className="p-2  h-screen">
       <section className="flex border rounded-lg h-full">
         <aside className="w-32 flex flex-col gap-y-2 border-r p-2 h-full">
           <div className="flex justify-center items-center h-16 w-full">
-            <UserButton signInUrl="/" />
+            <Image
+              priority
+              alt="User avatar"
+              className="h-10 w-10 rounded-full"
+              height={40}
+              resource="image"
+              src="/favicon.ico"
+              width={40}
+            />
           </div>
           {links.map(({ href, text, icon: Icon }) => (
             <Link
@@ -59,6 +76,7 @@ export default function DashboardLayout({
           <div className="p-2 border-b w-full flex flex-row gap-x-4">
             <EnvironmentSwitcher />
             <EnvironmentSwitcher />
+            <UserNav />
           </div>
           {children}
         </section>

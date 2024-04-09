@@ -1,8 +1,7 @@
 "use server";
 
-import { currentUser } from "@clerk/nextjs";
-
 import { db } from "@/lib/db";
+import { createClient } from "@/utils/supabase/server";
 import { Prisma } from "@prisma/client";
 /**
  * @description - Get the current user
@@ -10,9 +9,11 @@ import { Prisma } from "@prisma/client";
  */
 export async function getUser() {
   try {
-    const user = await currentUser();
+    const supabase = createClient();
 
-    return user;
+    const user = await supabase.auth.getUser();
+
+    return user.data.user;
   } catch (error) {
     return null;
   }

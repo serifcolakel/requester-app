@@ -9,40 +9,35 @@ generator client {
 }
 
 datasource db {
-  provider = "mongodb"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id           String        @id @default(uuid()) @map("_id")
-  email        String        @unique
-  name         String?
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  environments Environment[]
-  Collection   Collection[]
+  id        String   @id @default(uuid()) @map("_id")
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // Requester Models : Collection, Request, Environment, Header, Params, Body, Response, Variable
 
 model Environment {
-  id        String     @id @default(uuid()) @map("_id")
+  id        String   @id @default(uuid()) @map("_id")
   name      String
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   userId    String
-  user      User       @relation(fields: [userId], references: [id])
-  variables Variable[]
 }
 
 model Variable {
-  id            String      @id @default(uuid()) @map("_id")
+  id            String   @id @default(uuid()) @map("_id")
   name          String
   value         String
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
   environmentId String
-  environment   Environment @relation(fields: [environmentId], references: [id])
 }
 
 enum Method {
@@ -53,13 +48,11 @@ enum Method {
 }
 
 model Collection {
-  id        String    @id @default(uuid()) @map("_id")
+  id        String   @id @default(uuid()) @map("_id")
   name      String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   userId    String
-  user      User      @relation(fields: [userId], references: [id])
-  requests  Request[]
 
   // Self-referencing relationship for folders
   parentId     String?
@@ -67,18 +60,14 @@ model Collection {
 }
 
 model Request {
-  id           String     @id @default(uuid()) @map("_id")
+  id           String   @id @default(uuid()) @map("_id")
   name         String
   method       Method
   url          String
   body         String
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
   collectionId String
-  headers      Header[]
-  params       Params[]
-  response     Response[]
-  Collection   Collection @relation(fields: [collectionId], references: [id])
 }
 
 model Header {
@@ -88,7 +77,6 @@ model Header {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   requestId String
-  request   Request  @relation(fields: [requestId], references: [id])
 }
 
 model Params {
@@ -98,7 +86,6 @@ model Params {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   requestId String
-  request   Request  @relation(fields: [requestId], references: [id])
 }
 
 model Response {
@@ -107,5 +94,4 @@ model Response {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   requestId String
-  request   Request  @relation(fields: [requestId], references: [id])
 }

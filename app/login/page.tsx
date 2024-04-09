@@ -5,7 +5,6 @@ import { CircleUser, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { isClerkAPIResponseError, useSignIn } from "@clerk/nextjs";
 
 import Footer from "@/components/footer";
 import Header from "@/components/header";
@@ -33,10 +32,9 @@ import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/components/ui/use-toast";
 import { paths } from "@/constants/paths";
 import { ILoginSchema, loginSchema } from "@/schemas/auth";
+import { login } from "@/services/auth/actions";
 
 export default function LoginPage() {
-  const { isLoaded, signIn, setActive } = useSignIn();
-
   const { toast } = useToast();
 
   const form = useForm<ILoginSchema>({
@@ -47,35 +45,24 @@ export default function LoginPage() {
   const router = useRouter();
 
   async function onSubmit(values: ILoginSchema) {
-    if (!isLoaded) {
-      return;
-    }
+    const response = await login({
+      email: values.email,
+      password: values.password,
+    });
 
-    try {
-      const result = await signIn.create({
-        identifier: values.email,
-        password: values.password,
+    if (response.success) {
+      toast({
+        title: "Login successful",
+        description: "You have successfully logged in to your account.",
       });
 
-      if (result.status === "complete") {
-        await setActive({ session: result.createdSessionId });
-
-        router.push(paths.dashboard.index);
-      }
-    } catch (err) {
-      if (isClerkAPIResponseError(err)) {
-        toast({
-          variant: "destructive",
-          description: err.errors[0].message,
-        });
-      }
-
-      if (err instanceof Error) {
-        toast({
-          variant: "destructive",
-          description: err.message,
-        });
-      }
+      router.push(paths.dashboard.index);
+    } else {
+      toast({
+        title: "Login failed",
+        description: response.message,
+        variant: "destructive",
+      });
     }
   }
 

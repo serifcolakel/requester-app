@@ -5,6 +5,7 @@ export type BaseServiceResponse<T> = {
   data: Nullable<T>;
   message: string;
   success: boolean;
+  details?: string;
 };
 
 /**

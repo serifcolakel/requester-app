@@ -1,0 +1,111 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String        @id @default(uuid()) @map("_id")
+  email        String        @unique
+  name         String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  environments Environment[]
+  Collection   Collection[]
+}
+
+// Requester Models : Collection, Request, Environment, Header, Params, Body, Response, Variable
+
+model Environment {
+  id        String     @id @default(uuid()) @map("_id")
+  name      String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  userId    String
+  user      User       @relation(fields: [userId], references: [id])
+  variables Variable[]
+}
+
+model Variable {
+  id            String      @id @default(uuid()) @map("_id")
+  name          String
+  value         String
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  environmentId String
+  environment   Environment @relation(fields: [environmentId], references: [id])
+}
+
+enum Method {
+  GET
+  POST
+  PUT
+  DELETE
+}
+
+model Collection {
+  id        String    @id @default(uuid()) @map("_id")
+  name      String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  requests  Request[]
+
+  // Self-referencing relationship for folders
+  parentId     String?
+  collectionId String?
+}
+
+model Request {
+  id           String     @id @default(uuid()) @map("_id")
+  name         String
+  method       Method
+  url          String
+  body         String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  collectionId String
+  headers      Header[]
+  params       Params[]
+  response     Response[]
+  Collection   Collection @relation(fields: [collectionId], references: [id])
+}
+
+model Header {
+  id        String   @id @default(uuid()) @map("_id")
+  key       String
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  requestId String
+  request   Request  @relation(fields: [requestId], references: [id])
+}
+
+model Params {
+  id        String   @id @default(uuid()) @map("_id")
+  key       String
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  requestId String
+  request   Request  @relation(fields: [requestId], references: [id])
+}
+
+model Response {
+  id        String   @id @default(uuid()) @map("_id")
+  body      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  requestId String
+  request   Request  @relation(fields: [requestId], references: [id])
+}

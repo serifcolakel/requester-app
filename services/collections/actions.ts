@@ -11,6 +11,7 @@ import {
   getUserCollections,
   putCollection,
 } from "@/services/collections";
+import { UpdateCollectionState } from "@/services/collections/types";
 
 export const getCollections = cache(
   async (formData?: FormData) => {
@@ -93,7 +94,10 @@ export const deleteCollectionAction = async (formData: FormData) => {
   return collection;
 };
 
-export const updateCollection = async (formData: FormData) => {
+export const updateCollection = async (
+  prevState: UpdateCollectionState,
+  formData: FormData
+) => {
   const user = await getUser();
 
   const id = String(formData.get("id") || "");
@@ -101,15 +105,25 @@ export const updateCollection = async (formData: FormData) => {
   const name = String(formData.get("name") || "");
 
   if (!user || !id || !name) {
-    return null;
+    return {
+      errorMessages: {
+        name: "Name is required",
+      },
+      data: prevState.data,
+    };
   }
 
-  const collection = await putCollection(id, {
+  const response = await putCollection(id, {
     name,
     userId: user?.id,
   });
 
   revalidateTag(TAGS.COLLECTION.ALL);
 
-  return collection;
+  return {
+    errorMessages: {
+      name: null,
+    },
+    data: response.data,
+  };
 };

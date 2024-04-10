@@ -3,7 +3,7 @@ import { useFormState } from "react-dom";
 import { Folder, Trash, TriangleAlert } from "lucide-react";
 import Link from "next/link";
 
-import UpdateCollectionFormWrapper from "@/components/screens/collections/collection.update.form.wrapper";
+import UpdateEnvironmentFormWrapper from "@/components/screens/environments/environments.update.form.wrapper";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -19,46 +19,46 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { paths } from "@/constants/paths";
 import {
-  deleteCollectionAction,
-  updateCollection,
-} from "@/services/collections/actions";
-import { UpdateCollectionState } from "@/services/collections/types";
-import { Collection } from "@prisma/client";
+  deleteEnvironment,
+  updateEnvironment,
+} from "@/services/environments/actions";
+import { UpdateEnvironmentState } from "@/services/environments/types";
+import { Environment } from "@prisma/client";
 
-const initialState: UpdateCollectionState = {
+const initialState: UpdateEnvironmentState = {
   errorMessages: {
     name: "",
   },
   data: null,
 };
 
-export default function CollectionItem({
-  collection,
+export default function EnvironmentItem({
+  environment,
 }: {
-  collection: Collection;
+  environment: Environment;
 }) {
-  const [state, formAction] = useFormState(updateCollection, initialState);
+  const [state, formAction] = useFormState(updateEnvironment, initialState);
 
   return (
     <>
       <div
         className="flex group flex-row gap-x-4 items-center justify-between px-2 rounded-lg hover:bg-gray-100"
-        key={collection.id}
+        key={environment.id}
       >
         <Link
           className="flex flex-row items-center gap-x-2"
-          href={paths.dashboard.collection.replace(":id", collection.id)}
-          key={collection.id}
+          href={paths.dashboard.environment.replace(":id", environment.id)}
+          key={environment.id}
         >
           <div className="flex flex-row items-center gap-x-2">
             <Folder className="w-6 h-6" />
-            <Label variant="label-sm">{collection.name}</Label>
+            <Label variant="label-sm">{environment.name}</Label>
           </div>
         </Link>
         <div className="flex flex-row gap-x-1 items-center justify-center">
           <div className="group-hover:opacity-100 opacity-0 transition-opacity duration-300 w-8 text-center">
-            <UpdateCollectionFormWrapper
-              collection={collection}
+            <UpdateEnvironmentFormWrapper
+              environment={environment}
               formAction={formAction}
             />
           </div>
@@ -69,7 +69,7 @@ export default function CollectionItem({
                   className="h-8 w-8 p-0 hover:text-red-500"
                   variant="icon"
                 >
-                  <span className="sr-only">Delete collection</span>
+                  <span className="sr-only">Delete Environment</span>
                   <Trash className="w-4 h-4" />
                 </Button>
               </AlertDialogTrigger>
@@ -80,7 +80,7 @@ export default function CollectionItem({
                     This action cannot be undone. This will permanently delete
                     your{" "}
                     <Label className="text-red-600" variant="paragraph-sm">
-                      Collection
+                      Environment
                     </Label>{" "}
                     and remove your data from our servers.
                   </AlertDialogDescription>
@@ -88,8 +88,8 @@ export default function CollectionItem({
                 <AlertDialogFooter className="w-full flex justify-end">
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                   <AlertDialogCancel asChild>
-                    <form action={deleteCollectionAction}>
-                      <Input name="id" type="hidden" value={collection.id} />
+                    <form action={deleteEnvironment}>
+                      <Input name="id" type="hidden" value={environment.id} />
                       <Button type="submit" variant="destructive">
                         Apply
                       </Button>

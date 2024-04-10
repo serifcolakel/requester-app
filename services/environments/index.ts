@@ -94,11 +94,15 @@ export const getEnvironment = async (
  * @returns - The created environment
  * */
 export const createEnvironment = async (
-  data: Environment
+  name: string,
+  userId: string
 ): Promise<BaseServiceResponse<Environment>> => {
   try {
     const environment = await db.environment.create({
-      data,
+      data: {
+        name,
+        userId,
+      },
     });
 
     return {
@@ -121,16 +125,18 @@ export const createEnvironment = async (
  * @param data - The environment data
  * @returns - The updated environment
  * */
-export const updateEnvironment = async (
+export const putEnvironment = async (
   id: string,
-  data: Environment
+  name: string
 ): Promise<BaseServiceResponse<Environment>> => {
   try {
     const environment = await db.environment.update({
       where: {
         id,
       },
-      data,
+      data: {
+        name,
+      },
     });
 
     return {
@@ -152,7 +158,7 @@ export const updateEnvironment = async (
  * @param id - The environment ID
  * @returns - The deleted environment
  * */
-export const deleteEnvironment = async (
+export const removeEnvironment = async (
   id: string
 ): Promise<BaseServiceResponse<Environment>> => {
   try {

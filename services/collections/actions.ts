@@ -54,44 +54,44 @@ export const getCollectionDetail = async (id: string) => {
     return null;
   }
 
-  const collection = await getCollectionById(id);
+  const response = await getCollectionById(id);
 
-  return collection;
+  return response;
 };
 
 export const createNewCollection = async (formData: FormData) => {
   const user = await getUser();
 
-  const name = String(formData.get("name"));
+  const name = String(formData.get("name") ?? "");
 
   if (!user?.id || !name) {
     return null;
   }
 
-  const collection = await createCollection({
+  const response = await createCollection({
     name,
     userId: user?.id,
   });
 
   revalidateTag(TAGS.COLLECTION.ALL);
 
-  return collection;
+  return response;
 };
 
 export const deleteCollectionAction = async (formData: FormData) => {
   const user = await getUser();
 
-  const id = String(formData.get("id"));
+  const id = String(formData.get("id") || "");
 
   if (!user || !id) {
     return null;
   }
 
-  const collection = await deleteCollection(id);
+  const response = await deleteCollection(id);
 
   revalidateTag(TAGS.COLLECTION.ALL);
 
-  return collection;
+  return response;
 };
 
 export const updateCollection = async (

@@ -121,14 +121,15 @@ export const createCollection = async (data: {
  * @param data - The collection data
  * @returns - The updated collection
  */
-export const updateCollection = async (
+export const putCollection = async (
   id: string,
-  data: { name: string }
+  data: { name: string; userId: string }
 ): Promise<BaseServiceResponse<Collection>> => {
   try {
     const collection = await db.collection.update({
       where: {
         id,
+        userId: data.userId,
       },
       data,
     });

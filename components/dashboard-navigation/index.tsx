@@ -43,7 +43,7 @@ export default function DashboardNavigation() {
           locale={false}
         >
           <Icon className="h-5 w-5" />
-          <Label variant="label-sm">{text}</Label>
+          <Label variant="label-xs">{text}</Label>
         </Link>
       ))}
     </div>

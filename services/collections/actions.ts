@@ -9,10 +9,11 @@ import {
   deleteCollection,
   getCollectionById,
   getUserCollections,
+  putCollection,
 } from "@/services/collections";
 
 export const getCollections = cache(
-  async () => {
+  async (formData?: FormData) => {
     const user = await getUser();
 
     if (!user?.id) {
@@ -23,9 +24,20 @@ export const getCollections = cache(
       };
     }
 
-    const collections = await getUserCollections(user?.id);
+    const response = await getUserCollections(user?.id);
 
-    return collections;
+    const search = String(formData?.get("search") || "");
+
+    const filteredCollections = search
+      ? response?.data?.filter((collection) =>
+          collection.name.toLowerCase().includes(search.toLowerCase())
+        )
+      : response.data;
+
+    return {
+      ...response,
+      data: filteredCollections || [],
+    };
   },
   [],
   {
@@ -75,6 +87,27 @@ export const deleteCollectionAction = async (formData: FormData) => {
   }
 
   const collection = await deleteCollection(id);
+
+  revalidateTag(TAGS.COLLECTION.ALL);
+
+  return collection;
+};
+
+export const updateCollection = async (formData: FormData) => {
+  const user = await getUser();
+
+  const id = String(formData.get("id") || "");
+
+  const name = String(formData.get("name") || "");
+
+  if (!user || !id || !name) {
+    return null;
+  }
+
+  const collection = await putCollection(id, {
+    name,
+    userId: user?.id,
+  });
 
   revalidateTag(TAGS.COLLECTION.ALL);
 

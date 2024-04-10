@@ -30,13 +30,25 @@ const links = [
 export default function DashboardNavigation() {
   const pathName = usePathname();
 
+  function isActive(href: string) {
+    if (pathName === href) return true;
+
+    if (pathName.startsWith(href) && href !== paths.dashboard.index)
+      return true;
+
+    return false;
+  }
+
   return (
     <div className="flex flex-col gap-y-2">
       {links.map(({ href, text, icon: Icon }) => (
         <Link
           className={cn(
             "px-4 bg-gray-50 py-4 gap-y-2 flex flex-col items-center justify-center rounded-lg hover:bg-gray-100",
-            pathName === href ? "bg-gray-100" : ""
+            "transition-colors duration-200",
+            {
+              "bg-gray-100": isActive(href),
+            }
           )}
           href={href}
           key={href}

@@ -1,7 +1,9 @@
 "use server";
 
 import { revalidateTag, unstable_cache as cache } from "next/cache";
+import { redirect } from "next/navigation";
 
+import { paths } from "@/constants/paths";
 import { TAGS } from "@/constants/tags";
 import { getUser } from "@/services/auth";
 import {
@@ -89,9 +91,13 @@ export const deleteCollectionAction = async (formData: FormData) => {
 
   const response = await deleteCollection(id);
 
+  if (!response.success) {
+    return null;
+  }
+
   revalidateTag(TAGS.COLLECTION.ALL);
 
-  return response;
+  return redirect(paths.dashboard.collections);
 };
 
 export const updateCollection = async (

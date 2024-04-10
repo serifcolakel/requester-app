@@ -1,6 +1,6 @@
 import React from "react";
 import { useFormState } from "react-dom";
-import { Folder, Trash, TriangleAlert } from "lucide-react";
+import { CircleCheck, Folder, Trash, TriangleAlert } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -25,6 +25,7 @@ import {
   updateEnvironment,
 } from "@/services/environments/actions";
 import { UpdateEnvironmentState } from "@/services/environments/types";
+import { useSelectedEnvironment } from "@/store/atoms";
 import { Environment } from "@prisma/client";
 
 const initialState: UpdateEnvironmentState = {
@@ -39,6 +40,9 @@ export default function EnvironmentItem({
 }: {
   environment: Environment;
 }) {
+  const [selectedEnvironment, setselectedEnvironment] =
+    useSelectedEnvironment();
+
   const [state, formAction] = useFormState(updateEnvironment, initialState);
 
   const pathName = usePathname();
@@ -70,6 +74,45 @@ export default function EnvironmentItem({
           </div>
         </Link>
         <div className="flex flex-row gap-x-1 items-center justify-center">
+          <div
+            className={cn(
+              "group-hover:opacity-100 group-hover:cursor-pointer transition-opacity duration-300 w-8 text-center",
+              selectedEnvironment?.id === environment.id
+                ? "opacity-100"
+                : "opacity-0"
+            )}
+          >
+            <Button
+              className="h-8 w-8 p-0 hover:text-red-500"
+              onClick={() =>
+                setselectedEnvironment(
+                  selectedEnvironment?.id === environment.id
+                    ? null
+                    : environment
+                )
+              }
+              tooltip={
+                selectedEnvironment?.id === environment.id
+                  ? "Deselect Environment"
+                  : "Select Environment"
+              }
+              variant="icon"
+            >
+              <span className="sr-only">Select Environment</span>
+              {selectedEnvironment?.id === environment.id ? (
+                <CircleCheck className="w-5 h-5 fill-gray-500 text-white" />
+              ) : (
+                <CircleCheck
+                  className={cn(
+                    "w-4 h-4",
+                    selectedEnvironment?.id === environment.id
+                      ? "w-5 h-5 fill-gray-500 text-white"
+                      : ""
+                  )}
+                />
+              )}
+            </Button>
+          </div>
           <div className="group-hover:opacity-100 group-hover:cursor-pointer opacity-0 transition-opacity duration-300 w-8 text-center">
             <UpdateEnvironmentFormWrapper
               environment={environment}
@@ -81,6 +124,7 @@ export default function EnvironmentItem({
               <AlertDialogTrigger asChild>
                 <Button
                   className="h-8 w-8 p-0 hover:text-red-500"
+                  tooltip="Delete Environment"
                   variant="icon"
                 >
                   <span className="sr-only">Delete Environment</span>

@@ -1,3 +1,4 @@
+import { Provider } from "jotai";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 
@@ -12,7 +13,7 @@ export const metadata: Metadata = {
   description: "Manage your requests with ease.",
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -20,8 +21,10 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        {children}
-        <Toaster />
+        <Provider>
+          {children}
+          <Toaster />
+        </Provider>
       </body>
     </html>
   );

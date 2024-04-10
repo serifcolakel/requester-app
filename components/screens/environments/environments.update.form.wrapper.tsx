@@ -21,7 +21,11 @@ export default function UpdateEnvironmentFormWrapper({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button className="h-8 w-8 p-0 hover:text-primary" variant="icon">
+        <Button
+          className="h-8 w-8 p-0 hover:text-primary"
+          tooltip="Edit Environment"
+          variant="icon"
+        >
           <span className="sr-only">Edit Environment</span>
           <Edit className="h-4 w-4" />
         </Button>

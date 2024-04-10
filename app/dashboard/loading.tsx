@@ -1,7 +1,7 @@
 import React from "react";
 
-import DashboardSkeleton from "@/components/skeletons/dashboard.skeleton";
+import DashboardLayoutSkeleton from "@/components/skeletons/dashboard.layout.skeleton";
 
 export default function Loading() {
-  return <DashboardSkeleton />;
+  return <DashboardLayoutSkeleton />;
 }

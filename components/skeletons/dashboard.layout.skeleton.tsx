@@ -4,7 +4,7 @@ import DashboardSkeleton from "@/components/skeletons/dashboard.skeleton";
 import ListSkeleton from "@/components/skeletons/list.skeleton";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export default function PageSkeleton() {
+export default function DashboardLayoutSkeleton() {
   return (
     <div className="grid md:grid-cols-3 gap-x-4 w-full divide-x">
       <div className="col-span-1 p-4">

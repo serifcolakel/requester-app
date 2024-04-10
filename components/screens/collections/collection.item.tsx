@@ -2,6 +2,7 @@ import React from "react";
 import { useFormState } from "react-dom";
 import { Folder, Trash, TriangleAlert } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 import UpdateCollectionFormWrapper from "@/components/screens/collections/collection.update.form.wrapper";
 import {
@@ -18,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { paths } from "@/constants/paths";
+import { cn } from "@/lib/utils";
 import {
   deleteCollectionAction,
   updateCollection,
@@ -39,24 +41,36 @@ export default function CollectionItem({
 }) {
   const [state, formAction] = useFormState(updateCollection, initialState);
 
+  const pathName = usePathname();
+
+  const isCurrentCollection = pathName.includes(collection.id);
+
   return (
     <>
       <div
-        className="flex group flex-row gap-x-4 items-center justify-between px-2 rounded-lg hover:bg-gray-100"
+        className={cn(
+          "flex group flex-row gap-x-4 items-center justify-between px-2 rounded-lg hover:bg-gray-100",
+          isCurrentCollection ? "border-l-2 border-primary" : "bg-white"
+        )}
         key={collection.id}
       >
         <Link
-          className="flex flex-row items-center gap-x-2"
+          className="flex flex-row items-center gap-x-2 cursor-pointer w-full"
           href={paths.dashboard.collection.replace(":id", collection.id)}
           key={collection.id}
         >
-          <div className="flex flex-row items-center gap-x-2">
+          <div className="flex flex-row items-center gap-x-2 group-hover:text-primary transition-colors duration-300">
             <Folder className="w-6 h-6" />
-            <Label variant="label-sm">{collection.name}</Label>
+            <Label
+              className="group-hover:cursor-pointer line-clamp-1"
+              variant="label-sm"
+            >
+              {collection.name}
+            </Label>
           </div>
         </Link>
         <div className="flex flex-row gap-x-1 items-center justify-center">
-          <div className="group-hover:opacity-100 opacity-0 transition-opacity duration-300 w-8 text-center">
+          <div className="group-hover:opacity-100 group-hover:cursor-pointer opacity-0 transition-opacity duration-300 w-8 text-center">
             <UpdateCollectionFormWrapper
               collection={collection}
               formAction={formAction}

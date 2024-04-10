@@ -21,6 +21,7 @@ export default function EnvironmentsListWrapper({ environments }: Props) {
             emptyStateProps: {
               src: "/illustration-no-mock-server.svg",
             },
+            className: "space-y-2",
           }}
         />
       </div>

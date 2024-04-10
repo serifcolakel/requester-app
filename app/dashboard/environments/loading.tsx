@@ -1,7 +1,7 @@
 import React from "react";
 
-import PageSkeleton from "@/components/skeletons/page.skeleton";
+import DetailPageSkeleton from "@/components/skeletons/detail.page.skeleton";
 
 export default function Loading() {
-  return <PageSkeleton />;
+  return <DetailPageSkeleton />;
 }

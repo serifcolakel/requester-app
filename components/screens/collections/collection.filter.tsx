@@ -4,12 +4,6 @@ import { redirect } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { paths } from "@/constants/paths";
 import {
   createNewCollection,
@@ -29,19 +23,18 @@ export default function CollectionFilter() {
 
   return (
     <div className="flex flex-row items-center justify-between px-2 py-4 gap-x-1">
-      <TooltipProvider key="new collection">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <form action={onCreate}>
-              <Input name="name" type="hidden" value="New Collection" />
-              <Button className="mt-1" size="xs" type="submit" variant="icon">
-                <Plus className="w-6 h-6" />
-              </Button>
-            </form>
-          </TooltipTrigger>
-          <TooltipContent>Add new collection</TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      <form action={onCreate}>
+        <Input name="name" type="hidden" value="New Collection" />
+        <Button
+          className="mt-1"
+          size="xs"
+          tooltip="Add new collection"
+          type="submit"
+          variant="icon"
+        >
+          <Plus className="w-6 h-6" />
+        </Button>
+      </form>
       <form action={getCollections} className="relative w-full">
         <ListFilter className="w-4 h-4 absolute top-1/2 left-2 transform -translate-y-1/2 text-muted-foreground" />
         <Input

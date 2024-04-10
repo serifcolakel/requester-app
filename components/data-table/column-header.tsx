@@ -2,7 +2,7 @@ import {
   ArrowDownIcon,
   ArrowUpIcon,
   EyeOffIcon,
-  SortAscIcon,
+  FilterIcon,
 } from "lucide-react";
 import { Column } from "@tanstack/react-table";
 
@@ -40,7 +40,7 @@ export function DataTableColumnHeader<TData, TValue>({
       return <ArrowUpIcon className="ml-2 h-4 w-4" />;
     }
 
-    return <SortAscIcon className="ml-2 h-4 w-4" />;
+    return <FilterIcon className="ml-2 h-4 w-4" />;
   };
 
   return (

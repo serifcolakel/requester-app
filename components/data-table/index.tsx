@@ -38,6 +38,7 @@ declare module "@tanstack/react-table" {
     getRowData: (rowIndex: number) => TData;
     addRow: (row: TData) => void;
     addEmptyRow: () => void;
+    getData: () => TData[];
   }
 }
 
@@ -46,7 +47,10 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
   loading?: boolean;
   setData?: React.Dispatch<React.SetStateAction<TData[]>>;
-  toolbarProps?: Omit<React.ComponentProps<typeof DataTableToolbar>, "table">;
+  toolbarProps?: Omit<
+    React.ComponentProps<typeof DataTableToolbar<TData>>,
+    "table"
+  >;
 }
 
 function useSkipper() {
@@ -151,10 +155,13 @@ export function DataTable<TData, TValue>({
           Object.fromEntries(columns.map((column) => [column.id, ""])),
         ]);
       },
+      getData: () => data,
     },
   });
 
   const columnsLength = columns.length;
+
+  const showSections = data.length > 0 && !loading;
 
   return (
     <div className="space-y-4 border rounded-md p-2 shadow-md relative">
@@ -166,24 +173,26 @@ export function DataTable<TData, TValue>({
       <DataTableToolbar table={table} {...toolbarProps} />
       <div className="rounded-md border">
         <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead colSpan={header.colSpan} key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  );
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
+          {showSections && (
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => {
+                    return (
+                      <TableHead colSpan={header.colSpan} key={header.id}>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </TableHead>
+                    );
+                  })}
+                </TableRow>
+              ))}
+            </TableHeader>
+          )}
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
@@ -212,7 +221,7 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <DataTablePagination table={table} />
+      {showSections && <DataTablePagination table={table} />}
     </div>
   );
 }

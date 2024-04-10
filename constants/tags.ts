@@ -7,4 +7,8 @@ export const TAGS = {
     INDEX: "enviroments",
     ALL: "all-enviroments",
   },
+  VARIABLE: {
+    INDEX: "variables",
+    ALL: "all-variables",
+  },
 };

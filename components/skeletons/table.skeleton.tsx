@@ -14,7 +14,7 @@ type Props = {
 };
 
 export default function TableSkeleton({
-  length = 12,
+  length = 21,
   className,
   itemProps,
   gridTemplateColumns = 5,
@@ -29,7 +29,7 @@ export default function TableSkeleton({
           style={{ animationDuration: "2s" }}
         />
       </div>
-      <div className={cn("grid gap-x-2 p-2", className)} role="list">
+      <div className={cn("grid mt-2 p-2", className)} role="list">
         <div
           className="grid w-full py-2 gap-x-2"
           style={{ gridTemplateColumns: `repeat(${gridTemplateColumns}, 1fr)` }}
@@ -42,7 +42,7 @@ export default function TableSkeleton({
           ))}
         </div>
         <div
-          className="grid w-full p-2 gap-x-2 bg-white border rounded-lg"
+          className="grid w-full px-2 py-4 gap-x-2 bg-white border rounded-lg"
           style={{ gridTemplateColumns: `repeat(${gridTemplateColumns}, 1fr)` }}
         >
           {Array.from({ length: gridTemplateColumns }).map((index) => (

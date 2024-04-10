@@ -2,26 +2,30 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 
+import { DataTableActions } from "@/app/dashboard/environments/data-table-actions";
+import EditRow from "@/app/dashboard/environments/edit-row";
 import { DataTableColumnHeader } from "@/components/data-table/column-header";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
-import { Environment } from "@prisma/client";
+import { updateVariable } from "@/services/variables/actions";
+import { Variable } from "@prisma/client";
 
-export const columns: ColumnDef<Environment>[] = [
+export const columns: ColumnDef<Variable>[] = [
   {
     id: "select",
     accessorKey: "id",
-    header: ({ table }) => (
-      <Checkbox
-        aria-label="Select all"
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        className="translate-y-[2px]"
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-      />
-    ),
+    header: ({ table }) => {
+      return (
+        <Checkbox
+          aria-label="Select all"
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          className="translate-y-[2px]"
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        />
+      );
+    },
     cell: ({ row }) => (
       <Checkbox
         aria-label="Select row"
@@ -31,35 +35,31 @@ export const columns: ColumnDef<Environment>[] = [
       />
     ),
     enableSorting: false,
-    enableHiding: false,
-  },
-  {
-    accessorKey: "id",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Task" />
-    ),
-    cell: ({ row, table }) => {
-      return (
-        <Input
-          className="h-6 w-auto"
-          onChange={(e) => {
-            table.options.meta?.updateData(row.index, "id", e.target.value);
-          }}
-          value={row.getValue("id")}
-        />
-      );
-    },
-    enableSorting: true,
-    enableHiding: false,
   },
   {
     accessorKey: "name",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Name" />
-    ),
-    cell: ({ row }) => (
-      <div className="w-[80px] line-clamp-1">{row.getValue("name")}</div>
-    ),
-    enableHiding: false,
+    header: ({ column }) => {
+      return <DataTableColumnHeader column={column} title="Name" />;
+    },
+    cell: ({ row }) => {
+      return <EditRow action={updateVariable} name="name" row={row.original} />;
+    },
+  },
+  {
+    accessorKey: "value",
+    header: ({ column }) => {
+      return <DataTableColumnHeader column={column} title="Value" />;
+    },
+    cell: ({ row }) => {
+      return (
+        <EditRow action={updateVariable} name="value" row={row.original} />
+      );
+    },
+  },
+  {
+    id: "actions",
+    accessorKey: "id",
+    header: "Actions",
+    cell: ({ row }) => <DataTableActions row={row} />,
   },
 ];

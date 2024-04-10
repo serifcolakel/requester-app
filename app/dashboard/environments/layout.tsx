@@ -17,7 +17,9 @@ export default async function Layout({ children }: PropsWithChildren) {
         <EnvironmentsListWrapper environments={environments} />
       </ResizablePanel>
       <ResizableHandle withHandle />
-      <ResizablePanel minSize={70}>{children}</ResizablePanel>
+      <ResizablePanel className="!overflow-y-auto" minSize={70}>
+        {children}
+      </ResizablePanel>
     </ResizablePanelGroup>
   );
 }

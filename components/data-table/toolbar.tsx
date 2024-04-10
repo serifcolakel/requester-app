@@ -5,12 +5,6 @@ import { Table } from "@tanstack/react-table";
 
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "../ui/tooltip";
 
 import { DataTableFacetedFilter } from "./faced-filter";
 import { DataTableViewOptions } from "./view-options";
@@ -26,13 +20,17 @@ export interface DataTableToolbarProps<TData> {
     key: keyof TData;
     title: string;
   }[];
+  children?: React.ReactNode;
 }
 
 export function DataTableToolbar<TData>({
   table,
   filterParameters,
+  children,
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
+
+  const hasData = table.getRowModel().rows.length > 0;
 
   return (
     <div className="flex items-center justify-between">
@@ -41,25 +39,20 @@ export function DataTableToolbar<TData>({
           <FilterIcon className="absolute top-1/2 left-2 -translate-y-1/2 h-4 w-4" />
           <Input
             className="h-8 w-[150px] lg:w-[250px] px-8"
+            disabled={!hasData}
             onChange={(e) => table.setGlobalFilter(e.target.value)}
             placeholder="Filter on all columns"
             value={table.getState().globalFilter || ""}
           />
           {table.getState().globalFilter && (
-            <TooltipProvider key="clear global filter">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    className="h-6 w-6 p-0 absolute transform top-1/2 right-2 -translate-y-1/2"
-                    onClick={() => table.setGlobalFilter("")}
-                    variant="icon"
-                  >
-                    <CircleX className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Clear global filter</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <Button
+              className="h-6 w-6 p-0 absolute transform top-1/2 right-2 -translate-y-1/2"
+              onClick={() => table.setGlobalFilter("")}
+              tooltip="Clear global filter"
+              variant="icon"
+            >
+              <CircleX className="h-4 w-4" />
+            </Button>
           )}
         </div>
         {filterParameters?.map((filterParameter) => (
@@ -80,6 +73,7 @@ export function DataTableToolbar<TData>({
           </Button>
         )}
       </div>
+      {children}
       <DataTableViewOptions table={table} />
     </div>
   );

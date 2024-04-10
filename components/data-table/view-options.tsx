@@ -20,11 +20,14 @@ interface DataTableViewOptionsProps<TData> {
 export function DataTableViewOptions<TData>({
   table,
 }: DataTableViewOptionsProps<TData>) {
+  const hasData = table.getRowModel().rows.length > 0;
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
           className="ml-auto hidden h-8 lg:flex"
+          disabled={!hasData}
           size="sm"
           variant="outline"
         >

@@ -78,7 +78,7 @@ export default function HighlightedInput({
           id={id}
           onBlur={onBlur}
           onChange={onChange}
-          placeholder="Type something..."
+          placeholder="Enter URL or paste text"
           value={value}
         />
         <div className="input-renderer">
@@ -182,7 +182,9 @@ export default function HighlightedInput({
               return <span key={i}>{word}</span>;
             })
           ) : (
-            <span className="text-gray-500 text-xs">Type something...</span>
+            <span className="text-gray-500 text-xs">
+              Enter URL or paste text
+            </span>
           )}
         </div>
       </div>

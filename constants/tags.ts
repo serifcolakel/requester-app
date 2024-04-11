@@ -11,4 +11,8 @@ export const TAGS = {
     INDEX: "variables",
     ALL: "all-variables",
   },
+  REQUEST: {
+    INDEX: "requests",
+    ALL: "all-requests",
+  },
 };

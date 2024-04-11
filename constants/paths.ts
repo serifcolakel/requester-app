@@ -9,6 +9,7 @@ export const paths = {
     index: "/dashboard",
     collections: "/dashboard/collections",
     collection: "/dashboard/collections/:id",
+    requests: "/dashboard/collections/:collectionId/:requestId",
     environments: "/dashboard/environments",
     environment: "/dashboard/environments/:id",
   },

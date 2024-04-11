@@ -5,6 +5,7 @@ import {
   ChevronRight,
   Plus,
   Trash,
+  TrashIcon,
   TriangleAlert,
 } from "lucide-react";
 import Link from "next/link";
@@ -36,7 +37,7 @@ import {
   CollectionDetailItem,
   UpdateCollectionState,
 } from "@/services/collections/types";
-import { createNewRequest } from "@/services/requests/actions";
+import { createNewRequest, deleteRequest } from "@/services/requests/actions";
 import { REQUEST_TYPE } from "@/services/requests/constants";
 
 const initialState: UpdateCollectionState = {
@@ -53,16 +54,24 @@ export default function CollectionItem({
 }) {
   const { toast } = useToast();
 
-  const [isExpanded, setIsExpanded] = useState(false);
+  const pathName = usePathname();
+
+  const requests = collection.requests || [];
+
+  const initialExpanded = requests.some(
+    (request) =>
+      pathName ===
+      paths.dashboard.requests
+        .replace(":collectionId", collection.id)
+        .replace(":requestId", request.id)
+  );
+
+  const [isExpanded, setIsExpanded] = useState(initialExpanded);
 
   const [state, formAction] = useFormState(updateCollection, initialState);
 
-  const pathName = usePathname();
-
   const isCurrentCollection =
     pathName === paths.dashboard.collection.replace(":id", collection.id);
-
-  const requests = collection.requests || [];
 
   const onToggle = useCallback(() => {
     if (!requests.length) {
@@ -184,7 +193,7 @@ export default function CollectionItem({
           {requests.map((request) => (
             <div
               className={cn(
-                "flex flex-row items-center gap-x-2 px-2 py-1 rounded-lg hover:bg-gray-100 pl-9",
+                "flex flex-row group items-center gap-x-2 px-2 py-1 rounded-lg hover:bg-gray-100 pl-9",
                 pathName ===
                   paths.dashboard.requests
                     .replace(":collectionId", collection.id)
@@ -201,13 +210,36 @@ export default function CollectionItem({
                   .replace(":requestId", request.id)}
                 key={request.id}
               >
-                <div className="flex flex-row items-center gap-x-2">
+                <div className="flex flex-row items-center gap-x-2 w-full">
                   <RequestIcon method={request.method} />
-                  <Label className="line-clamp-1" variant="label-sm">
+                  <Label
+                    className="line-clamp-1 cursor-pointer"
+                    variant="label-sm"
+                  >
                     {request.name}
                   </Label>
                 </div>
               </Link>
+              <form
+                action={deleteRequest}
+                className="ml-auto mr-0 group-hover:opacity-100 opacity-0 transition-opacity duration-300"
+              >
+                <input defaultValue={request.id} name="id" type="hidden" />
+                <input
+                  defaultValue={collection.id}
+                  name="collectionId"
+                  type="hidden"
+                />
+                <Button
+                  className="p-0 h-6 gap-x-2 justify-start"
+                  tooltip="Delete Request"
+                  type="submit"
+                  variant="none"
+                >
+                  <TrashIcon className="h-4 w-4 hover:text-destructive" />
+                  <span className="sr-only">Delete request</span>
+                </Button>
+              </form>
             </div>
           ))}
         </div>

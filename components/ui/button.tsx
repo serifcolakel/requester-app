@@ -5,6 +5,7 @@ import { Slot } from "@radix-ui/react-slot";
 
 import {
   Tooltip,
+  TooltipArrow,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
@@ -77,7 +78,10 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
               {...props}
             />
           </TooltipTrigger>
-          <TooltipContent>{tooltip}</TooltipContent>
+          <TooltipContent>
+            {tooltip}
+            <TooltipArrow />
+          </TooltipContent>
         </Tooltip>
       </TooltipProvider>
     );

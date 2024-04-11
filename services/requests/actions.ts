@@ -5,7 +5,9 @@ import {
   revalidateTag,
   unstable_cache as cache,
 } from "next/cache";
+import { redirect } from "next/navigation";
 
+import { paths } from "@/constants/paths";
 import { TAGS } from "@/constants/tags";
 import { getUser } from "@/services/auth";
 import {
@@ -113,7 +115,20 @@ export const createNewRequest = async (formData: FormData) => {
   revalidateTag(TAGS.REQUEST.ALL);
   revalidateTag(TAGS.COLLECTION.ALL);
 
-  return response;
+  if (!response.success) {
+    return {
+      errorMessages: {
+        name: "Request name must be unique",
+      },
+      data: null,
+    };
+  }
+
+  return redirect(
+    paths.dashboard.requests
+      .replace(":collectionId", formValues.collectionId)
+      .replace(":requestId", response.data?.id || "")
+  );
 };
 
 export const updateRequest = async (formData: FormData) => {
@@ -159,7 +174,9 @@ export const deleteRequest = async (formData: FormData) => {
 
   const id = String(formData.get("id") || "");
 
-  if (!user?.id || !id) {
+  const collectionId = String(formData.get("collectionId") || "");
+
+  if (!user?.id || !id || !collectionId) {
     return {
       success: false,
       message: "Variable not deleted",
@@ -171,6 +188,9 @@ export const deleteRequest = async (formData: FormData) => {
 
   if (response.success) {
     revalidateTag(TAGS.VARIABLE.ALL);
+    revalidateTag(TAGS.COLLECTION.ALL);
+
+    return redirect(paths.dashboard.collection.replace(":id", collectionId));
   }
 
   return response;

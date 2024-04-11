@@ -65,9 +65,17 @@ export const getUserEnvironments = async (
  * @returns - The environment
  * */
 export const getEnvironment = async (
-  id: string
+  id?: string
 ): Promise<BaseServiceResponse<Environment>> => {
   try {
+    if (!id) {
+      return {
+        data: null,
+        message: "Environment not retrieved",
+        success: false,
+      };
+    }
+
     const environment = await db.environment.findUnique({
       where: {
         id,

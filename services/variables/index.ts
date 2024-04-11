@@ -65,9 +65,17 @@ export const getVariables = async (
  * @returns - The Variable
  * */
 export const getVariable = async (
-  id: string
+  id?: string
 ): Promise<BaseServiceResponse<Variable>> => {
   try {
+    if (!id) {
+      return {
+        data: null,
+        message: "Variable not retrieved",
+        success: false,
+      };
+    }
+
     const variable = await db.variable.findUnique({
       where: {
         id,

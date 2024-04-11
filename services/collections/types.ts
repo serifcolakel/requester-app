@@ -1,4 +1,4 @@
-import { Collection } from "@prisma/client";
+import { Collection, Request } from "@prisma/client";
 
 export type UpdateCollectionState = {
   errorMessages: {
@@ -6,3 +6,5 @@ export type UpdateCollectionState = {
   };
   data: Collection | null;
 };
+
+export type CollectionDetailItem = Collection & { requests?: Request[] };

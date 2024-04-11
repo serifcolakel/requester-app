@@ -1,4 +1,5 @@
-import { PropsWithChildren, useId, useState } from "react";
+/* eslint-disable react/no-array-index-key */
+import { PropsWithChildren, useId } from "react";
 import { Copy, InfoIcon } from "lucide-react";
 
 import {
@@ -17,23 +18,23 @@ type Props = {
     name: string;
   }[];
   label?: string;
-  defaultValue?: string;
-  onChange: (value: string) => void;
+  value?: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
 };
 
-export default function HighlightedInput({
-  options,
-  label,
-  defaultValue = "",
-  onChange,
-}: PropsWithChildren<Props>) {
-  const [value, setValue] = useState(defaultValue);
+export const replaceValue = (word: string) => {
+  return word.replace(REGEX, (match) =>
+    match.replace("{{", "").replace("}}", "")
+  );
+};
 
-  const id = `higlight-${useId()}`;
+export const getOption = (word: string, options: Props["options"]) => {
+  return options.find((option) => option.name === replaceValue(word));
+};
 
-  let resultValue = "";
-
-  resultValue = value
+export const getOptionValue = (value: string, options: Props["options"]) => {
+  return value
     .split(REGEX)
     .map((word) => {
       if (word.match(REGEX) !== null) {
@@ -51,10 +52,18 @@ export default function HighlightedInput({
       return word;
     })
     .join("");
+};
 
-  if (resultValue !== value) {
-    onChange?.(resultValue);
-  }
+export default function HighlightedInput({
+  options,
+  label,
+  value = "",
+  onChange,
+  onBlur,
+}: PropsWithChildren<Props>) {
+  // const [value, setValue] = useState(defaultValue);
+
+  const id = `higlight-${useId()}`;
 
   return (
     <div className="flex flex-col gap-y-3 w-full rounded-lg">
@@ -67,24 +76,19 @@ export default function HighlightedInput({
         <input
           className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500"
           id={id}
-          onChange={(e) => setValue(e.target.value)}
+          onBlur={onBlur}
+          onChange={onChange}
           placeholder="Type something..."
           value={value}
         />
         <div className="input-renderer">
           {value ? (
-            value.split(REGEX).map((word) => {
+            value.split(REGEX).map((word, i) => {
               if (word.match(REGEX) !== null) {
-                const foundOption = options.find(
-                  (option) =>
-                    option.name ===
-                    word.replace(REGEX, (match) =>
-                      match.replace("{{", "").replace("}}", "")
-                    )
-                );
+                const foundOption = getOption(word, options);
 
                 return (
-                  <HoverCard key={word}>
+                  <HoverCard key={i}>
                     <HoverCardTrigger asChild>
                       <span
                         className={
@@ -175,7 +179,7 @@ export default function HighlightedInput({
                 );
               }
 
-              return <span key={word}>{word}</span>;
+              return <span key={i}>{word}</span>;
             })
           ) : (
             <span className="text-gray-500 text-xs">Type something...</span>

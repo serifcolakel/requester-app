@@ -25,7 +25,7 @@ import {
   updateEnvironment,
 } from "@/services/environments/actions";
 import { UpdateEnvironmentState } from "@/services/environments/types";
-import { useSelectedEnvironment } from "@/store/atoms";
+import { useSelectedEnvironment } from "@/store/async-atoms";
 import { Environment } from "@prisma/client";
 
 const initialState: UpdateEnvironmentState = {

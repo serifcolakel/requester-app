@@ -1,13 +1,21 @@
-"use client";
+import { atom } from "jotai";
 
-import { atom, useAtom } from "jotai";
+export const counterAtom = atom(0);
 
-import { Environment } from "@prisma/client";
+counterAtom.debugLabel = "counter";
 
-export const selectedEnvironmentAtom = atom<Environment | null>(null);
+export const incrementAtom = atom(null, (get, set) => {
+  set(counterAtom, get(counterAtom) + 1);
+});
 
-selectedEnvironmentAtom.debugLabel = "selectedEnvironment";
+export const decrementAtom = atom(null, (get, set) => {
+  set(counterAtom, get(counterAtom) - 1);
+});
 
-export function useSelectedEnvironment() {
-  return useAtom(selectedEnvironmentAtom);
-}
+export const resetAtom = atom(null, (get, set) => {
+  set(counterAtom, 0);
+});
+
+export const incrementByAtom = atom(null, (get, set, by: number) => {
+  set(counterAtom, get(counterAtom) + by);
+});

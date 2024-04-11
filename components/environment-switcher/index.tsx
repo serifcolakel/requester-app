@@ -3,8 +3,10 @@
 "use client";
 
 import * as React from "react";
+import { useAtom } from "jotai";
 import { Check } from "lucide-react";
 
+import HighlightedInput from "@/components/ui/highlight-input";
 import {
   Select,
   SelectContent,
@@ -13,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { getVariablesAtom } from "@/store/async-atoms";
 
 const defaultAccounts = [
   {
@@ -28,35 +31,56 @@ const defaultAccounts = [
 ];
 
 export function EnvironmentSwitcher() {
+  const [response] = useAtom(getVariablesAtom);
+
   const [selectedAccount, setSelectedAccount] = React.useState<string>(
     defaultAccounts[0].email
   );
 
+  // if (response.state === "loading") {
+  //   return <p>Loading...</p>;
+  // }
+
+  // if (response.state === "hasError") {
+  //   return <p>Error: {String(response.error ?? "")}</p>;
+  // }
+
   const { icon, label } =
     defaultAccounts.find((account) => account.email === selectedAccount) || {};
 
+  const options =
+    response.state === "hasData"
+      ? response.data.map((i) => ({
+          value: i.value,
+          name: i.name,
+        }))
+      : [];
+
   return (
-    <Select defaultValue={selectedAccount} onValueChange={setSelectedAccount}>
-      <SelectTrigger
-        aria-label="Select account"
-        className={cn(
-          "flex items-center gap-2 [&>span]:line-clamp-1 [&>span]:flex [&>span]:w-full [&>span]:items-center [&>span]:gap-1 [&>span]:truncate [&_svg]:h-4 [&_svg]:w-4 [&_svg]:shrink-0"
-        )}
-      >
-        <SelectValue placeholder="Select an account">
-          {icon}
-          <span className={cn("ml-2")}>{label}</span>
-        </SelectValue>
-      </SelectTrigger>
-      <SelectContent>
-        {defaultAccounts.map((account) => (
-          <SelectItem key={account.email} value={account.email}>
-            <div className="flex items-center gap-3 [&_svg]:h-4 [&_svg]:w-4 [&_svg]:shrink-0 [&_svg]:text-foreground">
-              {account.email}
-            </div>
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+    <>
+      <HighlightedInput onChange={() => {}} options={options} />
+      <Select defaultValue={selectedAccount} onValueChange={setSelectedAccount}>
+        <SelectTrigger
+          aria-label="Select account"
+          className={cn(
+            "flex items-center gap-2 [&>span]:line-clamp-1 [&>span]:flex [&>span]:w-full [&>span]:items-center [&>span]:gap-1 [&>span]:truncate [&_svg]:h-4 [&_svg]:w-4 [&_svg]:shrink-0"
+          )}
+        >
+          <SelectValue placeholder="Select an account">
+            {icon}
+            <span className={cn("ml-2")}>{label}</span>
+          </SelectValue>
+        </SelectTrigger>
+        <SelectContent>
+          {defaultAccounts.map((account) => (
+            <SelectItem key={account.email} value={account.email}>
+              <div className="flex items-center gap-3 [&_svg]:h-4 [&_svg]:w-4 [&_svg]:shrink-0 [&_svg]:text-foreground">
+                {account.email}
+              </div>
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </>
   );
 }

@@ -21,7 +21,11 @@ export default function UpdateCollectionFormWrapper({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button className="h-8 w-8 p-0 hover:text-primary" variant="icon">
+        <Button
+          className="h-8 p-0 hover:text-primary"
+          tooltip="Edit Collection"
+          variant="icon"
+        >
           <span className="sr-only">Edit collection</span>
           <Edit className="h-4 w-4" />
         </Button>

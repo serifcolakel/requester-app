@@ -3,6 +3,7 @@
  */
 
 import { db } from "@/lib/db";
+import { CollectionDetailItem } from "@/services/collections/types";
 import { BaseServiceResponse } from "@/types";
 import type { Collection } from "@prisma/client";
 /**
@@ -36,7 +37,7 @@ export const getAllCollections = async (): Promise<
  */
 export const getUserCollections = async (
   userId: string
-): Promise<BaseServiceResponse<Collection[]>> => {
+): Promise<BaseServiceResponse<CollectionDetailItem[]>> => {
   try {
     const collections = await db.collection.findMany({
       where: {
@@ -44,8 +45,34 @@ export const getUserCollections = async (
       },
     });
 
+    // get requests for each collection
+    const collectionRequests = await Promise.all(
+      collections.map(async (collection) => {
+        const requests = await db.request.findMany({
+          where: {
+            collectionId: collection.id,
+          },
+        });
+
+        return {
+          ...collection,
+          requests,
+        };
+      })
+    );
+
+    const mappedCollections = collections.map((collection) => {
+      const requests =
+        collectionRequests.find((c) => c.id === collection.id)?.requests || [];
+
+      return {
+        ...collection,
+        requests,
+      };
+    });
+
     return {
-      data: collections,
+      data: mappedCollections,
       message: "Collections retrieved",
       success: true,
     };
@@ -64,9 +91,17 @@ export const getUserCollections = async (
  * @returns - The collection
  */
 export const getCollectionById = async (
-  id: string
+  id?: string
 ): Promise<BaseServiceResponse<Collection>> => {
   try {
+    if (!id) {
+      return {
+        data: null,
+        message: "Collection not retrieved",
+        success: false,
+      };
+    }
+
     const collection = await db.collection.findUnique({
       where: {
         id,

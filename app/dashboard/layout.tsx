@@ -8,6 +8,7 @@ import { EnvironmentSwitcher } from "@/components/environment-switcher";
 import { UserNav } from "@/components/user-nav";
 import { paths } from "@/constants/paths";
 import { getUser } from "@/services/auth";
+import { getEnvironments } from "@/services/environments/actions";
 
 export const metadata: Metadata = {
   title: "Requester - Dashboard",
@@ -20,6 +21,8 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }>) {
   const user = await getUser();
+
+  const { data: environments = [] } = await getEnvironments();
 
   if (!user) {
     return redirect(paths.login, RedirectType.replace);
@@ -44,7 +47,7 @@ export default async function DashboardLayout({
         </aside>
         <section className="w-full h-full">
           <div className="h-14 p-2 border-b w-full flex flex-row gap-x-4 items-center justify-between">
-            <EnvironmentSwitcher />
+            <EnvironmentSwitcher environments={environments} />
             <UserNav />
           </div>
           <div className="w-full h-[calc(100%-56px)] overflow-y-auto">

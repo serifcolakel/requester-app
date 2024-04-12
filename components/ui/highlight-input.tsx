@@ -1,7 +1,8 @@
 /* eslint-disable react/no-array-index-key */
 import { PropsWithChildren, useId } from "react";
-import { Copy, InfoIcon } from "lucide-react";
+import { InfoIcon } from "lucide-react";
 
+import CopyText from "@/components/copy-text";
 import {
   HoverCard,
   HoverCardContent,
@@ -120,16 +121,11 @@ export default function HighlightedInput({
                             <span className="text-sm text-primary-600 dark:text-gray-100">
                               INITIAL
                             </span>
-                            <span className="text-sm font-bold text-gray-800 flex items-center gap-x-2 justify-center">
-                              {foundOption.value || "-"}
-                              <Copy
-                                className="w-4 h-4"
-                                onClick={() => {
-                                  navigator.clipboard.writeText(
-                                    foundOption.value
-                                  );
-                                }}
-                              />
+                            <span className="text-sm text-gray-800 flex items-center gap-x-2 justify-center">
+                              <span className="font-bold">
+                                {foundOption.value || "-"}
+                              </span>
+                              <CopyText text={foundOption.value} />
                             </span>
                           </div>
                           <div className="flex flex-row items-center justify-between pt-3 gap-x-4">
@@ -137,15 +133,10 @@ export default function HighlightedInput({
                               CURRENT
                             </span>
                             <span className="text-sm font-bold text-gray-800 flex items-center gap-x-2 justify-center">
-                              {foundOption.value || "-"}
-                              <Copy
-                                className="w-4 h-4"
-                                onClick={() => {
-                                  navigator.clipboard.writeText(
-                                    foundOption.value
-                                  );
-                                }}
-                              />
+                              <span className="font-bold">
+                                {foundOption.value || "-"}
+                              </span>
+                              <CopyText text={foundOption.value} />
                             </span>
                           </div>
                           <div className="flex flex-row items-center justify-between pt-3 gap-x-4">

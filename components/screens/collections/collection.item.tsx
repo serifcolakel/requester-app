@@ -12,6 +12,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import UpdateCollectionFormWrapper from "@/components/screens/collections/collection.update.form.wrapper";
+import CreateRequestForm from "@/components/screens/requests/create.request.form";
+import DeleteRequestForm from "@/components/screens/requests/delete.request.form";
 import RequestIcon from "@/components/screens/requests/request-icon";
 import {
   AlertDialog,
@@ -37,8 +39,6 @@ import {
   CollectionDetailItem,
   UpdateCollectionState,
 } from "@/services/collections/types";
-import { createNewRequest, deleteRequest } from "@/services/requests/actions";
-import { REQUEST_TYPE } from "@/services/requests/constants";
 
 const initialState: UpdateCollectionState = {
   errorMessages: {
@@ -161,22 +161,17 @@ export default function CollectionItem({
             </AlertDialog>
           </div>
           <div className="group-hover:opacity-100 opacity-0 transition-opacity duration-300 text-center">
-            <form action={createNewRequest}>
-              <input name="collectionId" type="hidden" value={collection.id} />
-              <input name="name" type="hidden" value="New Request" />
-              <input name="method" type="hidden" value={REQUEST_TYPE.GET} />
-              <input name="url" type="hidden" value="" />
-              <input name="body" type="hidden" value="" />
+            <CreateRequestForm collectionId={collection.id}>
               <Button
-                className="h-8 p-0 hover:text-red-500"
-                tooltip="Delete Collection"
+                className="h-8 p-0 hover:text-primary"
+                tooltip="Create New Request"
                 type="submit"
                 variant="icon"
               >
-                <span className="sr-only">Delete collection</span>
+                <span className="sr-only">Create New Request</span>
                 <Plus className="w-4 h-4" />
               </Button>
-            </form>
+            </CreateRequestForm>
           </div>
         </div>
       </div>
@@ -220,16 +215,11 @@ export default function CollectionItem({
                   </Label>
                 </div>
               </Link>
-              <form
-                action={deleteRequest}
+              <DeleteRequestForm
                 className="ml-auto mr-0 group-hover:opacity-100 opacity-0 transition-opacity duration-300"
+                collectionId={collection.id}
+                requestId={request.id}
               >
-                <input defaultValue={request.id} name="id" type="hidden" />
-                <input
-                  defaultValue={collection.id}
-                  name="collectionId"
-                  type="hidden"
-                />
                 <Button
                   className="p-0 h-6 gap-x-2 justify-start"
                   tooltip="Delete Request"
@@ -239,7 +229,7 @@ export default function CollectionItem({
                   <TrashIcon className="h-4 w-4 hover:text-destructive" />
                   <span className="sr-only">Delete request</span>
                 </Button>
-              </form>
+              </DeleteRequestForm>
             </div>
           ))}
         </div>

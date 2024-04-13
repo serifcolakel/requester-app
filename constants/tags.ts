@@ -23,4 +23,8 @@ export const TAGS = {
     INDEX: "authorizations",
     ALL: "all-authorizations",
   },
+  HEADER: {
+    INDEX: "headers",
+    ALL: "all-headers",
+  },
 };

@@ -19,4 +19,8 @@ export const TAGS = {
     INDEX: "params",
     ALL: "all-params",
   },
+  AUTHORIZATION: {
+    INDEX: "authorizations",
+    ALL: "all-authorizations",
+  },
 };

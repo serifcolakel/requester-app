@@ -8,13 +8,21 @@ type Props<T extends object> = {
   row: T;
   name: keyof T;
   action: FormHTMLAttributes<HTMLFormElement>["action"];
+  options?: {
+    autoSave?: boolean;
+  };
 };
 
 export default function EditRow<T extends object>({
   row,
   name,
   action,
+  options = {
+    autoSave: true,
+  },
 }: Props<T>) {
+  const { autoSave } = options;
+
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   const formKeys = Object.keys(row) as (keyof T)[];
@@ -37,7 +45,7 @@ export default function EditRow<T extends object>({
         className={`h-8 ${className}`}
         name={String(name)}
         onBlur={() => {
-          if (hasChanged) {
+          if (hasChanged && autoSave) {
             setTimeout(() => {
               buttonRef.current?.click();
             }, 500);

@@ -171,7 +171,7 @@ export function DataTable<TData, TValue>({
         </div>
       )}
       <DataTableToolbar table={table} {...toolbarProps} />
-      <div className="rounded-md border">
+      <div className="rounded-md border overflow-y-auto max-h-[40vh]">
         <Table>
           {showSections && (
             <TableHeader>

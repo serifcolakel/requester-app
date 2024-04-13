@@ -48,7 +48,6 @@ export default function AuthorizationPage({ request, handleToogle }: Props) {
 
   const getAuthorization = async () => {
     handleToogle(true);
-    setToken("");
     const { data, success } = await getAuthorizationByRequestId(request.id);
 
     if (data.length === 0 || !data[0].token || !success) {

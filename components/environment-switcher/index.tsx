@@ -63,7 +63,10 @@ export function EnvironmentSwitcher({ environments }: Props) {
         </SelectTrigger>
         <SelectContent>
           {environments.map((environment) => (
-            <div className="flex flex-row flex-wrap gap-x-2 group">
+            <div
+              className="flex flex-row flex-wrap gap-x-2 group"
+              key={environment.id}
+            >
               <SelectItem
                 className="group-hover:bg-gray-50 w-full"
                 itemIndicator={<FaPiedPiper />}

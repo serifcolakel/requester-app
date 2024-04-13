@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 
 import Authorization from "@/components/screens/authorization";
+import BodyPage from "@/components/screens/body";
 import Headers from "@/components/screens/headers";
 import Params from "@/components/screens/params";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -44,7 +45,9 @@ export default function RequestTabs({ request }: Props) {
       <TabsContent value="authorization">
         <Authorization handleToogle={handleToogle} request={request} />
       </TabsContent>
-      <TabsContent value="body">Body</TabsContent>
+      <TabsContent value="body">
+        <BodyPage handleToogle={handleToogle} request={request} />
+      </TabsContent>
     </Tabs>
   );
 }

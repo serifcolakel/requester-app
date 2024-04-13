@@ -13,6 +13,7 @@
   "dependencies": {
     "@emotion/react": "^11.11.4",
     "@hookform/resolvers": "^3.3.4",
+    "@monaco-editor/react": "^4.6.0",
     "@prisma/client": "5.12.1",
     "@radix-ui/react-alert-dialog": "^1.0.5",
     "@radix-ui/react-avatar": "^1.0.4",

@@ -1,6 +1,7 @@
 /* eslint-disable max-len */
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
+import { Loader } from "lucide-react";
 import { Slot } from "@radix-ui/react-slot";
 
 import {
@@ -49,14 +50,50 @@ export interface ButtonProps
     VariantProps<typeof buttonVariants> {
   asChild?: boolean;
   tooltip?: string;
+  loading?: boolean;
+  loadingContent?: React.ReactNode;
+}
+
+function ButtonLoadingIndicator({
+  icon,
+  className,
+  children,
+}: {
+  icon: React.ReactNode;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <p className={cn("flex flex-row gap-x-2 items-center", className)}>
+      {icon}
+      {children}
+    </p>
+  );
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, tooltip, ...props }, ref) => {
+  (
+    {
+      className,
+      variant,
+      size,
+      asChild = false,
+      tooltip,
+      children,
+      loading,
+      loadingContent = "Processing...",
+      ...props
+    },
+    ref
+  ) => {
     const Comp = asChild ? Slot : "button";
 
     const canShowTooltip =
       tooltip && tooltip.length > 0 && !asChild && !props.disabled;
+
+    const isDisabled = props.disabled || loading;
+
+    const isIcon = variant === "icon";
 
     if (!canShowTooltip) {
       return (
@@ -64,7 +101,18 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           className={cn(buttonVariants({ variant, size, className }))}
           ref={ref}
           {...props}
-        />
+          disabled={isDisabled}
+        >
+          {loading ? (
+            <ButtonLoadingIndicator
+              icon={<Loader className="w-4 h-4 animate-spin" />}
+            >
+              {!isIcon && loadingContent}
+            </ButtonLoadingIndicator>
+          ) : (
+            children
+          )}
+        </Comp>
       );
     }
 
@@ -76,7 +124,18 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
               className={cn(buttonVariants({ variant, size, className }))}
               ref={ref}
               {...props}
-            />
+              disabled={isDisabled}
+            >
+              {loading ? (
+                <ButtonLoadingIndicator
+                  icon={<Loader className="w-4 h-4 animate-spin" />}
+                >
+                  {!isIcon && loadingContent}
+                </ButtonLoadingIndicator>
+              ) : (
+                children
+              )}
+            </Comp>
           </TooltipTrigger>
           <TooltipContent>
             {tooltip}
@@ -89,5 +148,6 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 );
 
 Button.displayName = "Button";
+ButtonLoadingIndicator.displayName = "ButtonLoadingIndicator";
 
-export { Button, buttonVariants };
+export { Button, ButtonLoadingIndicator, buttonVariants };

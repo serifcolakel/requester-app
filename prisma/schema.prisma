@@ -101,7 +101,7 @@ enum AuthType {
   BASIC
 }
 
-model Authorization {
+model Auth {
   id        String   @id @default(uuid()) @map("_id")
   type      AuthType
   token     String

@@ -3,6 +3,7 @@
  */
 
 import { db } from "@/lib/db";
+import { createAuthorization } from "@/services/authorization";
 import { CreateRequest, UpdateRequest } from "@/services/requests/types";
 import { BaseServiceResponse } from "@/types";
 import type { Request } from "@prisma/client";
@@ -110,10 +111,18 @@ export const createRequest = async (
       data,
     });
 
+    // create a request authorizations
+    const createdAuth = await createAuthorization(
+      "BEARER",
+      "Bearer Token",
+      newRequest.id
+    );
+
     return {
       data: newRequest,
       message: "Request created",
       success: true,
+      details: JSON.stringify(createdAuth),
     };
   } catch (error) {
     return {

@@ -30,9 +30,10 @@ import { Auth, Request } from "@prisma/client";
 
 type Props = {
   request: Request;
+  handleToogle: (condition: boolean) => void;
 };
 
-export default function AuthorizationPage({ request }: Props) {
+export default function AuthorizationPage({ request, handleToogle }: Props) {
   const [response] = useAtom(getVariablesAtom);
 
   const [authDetail, setAuthDetail] = useState<Auth>();
@@ -46,6 +47,8 @@ export default function AuthorizationPage({ request }: Props) {
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   const getAuthorization = async () => {
+    handleToogle(true);
+    setToken("");
     const { data, success } = await getAuthorizationByRequestId(request.id);
 
     if (data.length === 0 || !data[0].token || !success) {
@@ -54,6 +57,7 @@ export default function AuthorizationPage({ request }: Props) {
 
     setAuthDetail(data[0]);
     setToken(data[0].token);
+    handleToogle(false);
   };
 
   useEffect(() => {

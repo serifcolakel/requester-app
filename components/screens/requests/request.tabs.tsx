@@ -1,8 +1,16 @@
+"use client";
+
 import React from "react";
 
+import Params from "@/components/screens/params";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Request } from "@prisma/client";
 
-export default function RequestTabs() {
+type Props = {
+  request: Request;
+};
+
+export default function RequestTabs({ request }: Props) {
   return (
     <Tabs defaultValue="params">
       <TabsList className="grid w-full grid-cols-4">
@@ -11,7 +19,9 @@ export default function RequestTabs() {
         <TabsTrigger value="authorization">Authorization</TabsTrigger>
         <TabsTrigger value="body">Body</TabsTrigger>
       </TabsList>
-      <TabsContent value="params">Params</TabsContent>
+      <TabsContent className="overflow-y-auto" value="params">
+        <Params request={request} />
+      </TabsContent>
       <TabsContent value="headers">Headers</TabsContent>
       <TabsContent value="authorization">Authorization</TabsContent>
       <TabsContent value="body">Body</TabsContent>

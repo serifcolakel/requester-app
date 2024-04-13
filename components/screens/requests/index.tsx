@@ -7,6 +7,7 @@ import { useAtom } from "jotai";
 import { Loader, Save, Send } from "lucide-react";
 
 import { getRequestColorClass } from "@/components/screens/requests/helpers";
+import RequestTabs from "@/components/screens/requests/request.tabs";
 import RequestIcon from "@/components/screens/requests/request-icon";
 import { Button } from "@/components/ui/button";
 import HighlightedInput from "@/components/ui/highlight-input";
@@ -23,6 +24,7 @@ import { cn } from "@/lib/utils";
 import { updateRequest } from "@/services/requests/actions";
 import { REQUEST_TYPE_OPTIONS } from "@/services/requests/constants";
 import { getVariablesAtom } from "@/store/async-atoms";
+import { sleep } from "@/utils/async.utils";
 import { Collection, Method, Request } from "@prisma/client";
 
 type Props = {
@@ -34,6 +36,8 @@ export default function Requests({ request, collection }: Props) {
   const [response] = useAtom(getVariablesAtom);
 
   const [saving, setSaving] = useState(false);
+
+  const [sending, setSending] = useState(false);
 
   const buttonRef = useRef<HTMLButtonElement>(null);
 
@@ -75,6 +79,14 @@ export default function Requests({ request, collection }: Props) {
           name: i.name,
         }))
       : [];
+
+  const handleSendRequest = async () => {
+    setSending(true);
+
+    await sleep(1000);
+
+    setSending(false);
+  };
 
   return (
     <div className="space-y-4">
@@ -165,13 +177,19 @@ export default function Requests({ request, collection }: Props) {
           />
         </div>
         <div className="col-span-2">
-          <Button className="w-full gap-x-4">
+          <Button
+            className="w-full gap-x-4"
+            loading={sending}
+            loadingContent="Sending..."
+            onClick={handleSendRequest}
+          >
             <Send className="w-4 h-4" />
-            <span className="sr-only">Send</span>
+            <span className="sr-only">{sending ? "Sending..." : "Send"}</span>
             Send
           </Button>
         </div>
       </div>
+      <RequestTabs request={request} />
     </div>
   );
 }

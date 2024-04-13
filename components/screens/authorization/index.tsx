@@ -70,12 +70,12 @@ export default function AuthorizationPage({ request }: Props) {
   const autoSubmit = () => {
     if (isEqual) return;
 
-    setSaving(true);
     buttonRef.current?.click();
 
-    getAuthorization();
+    setSaving(true);
 
     setTimeout(() => {
+      getAuthorization();
       setSaving(false);
     }, 250);
   };

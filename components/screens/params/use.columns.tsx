@@ -70,10 +70,11 @@ export default function useColumns({ onDelete, onEdit }: Props) {
         accessorKey: "id",
         header: "Actions",
         cell: ({ row }) => (
-          <form action={onDelete}>
+          <form action={onDelete} className="pl-2">
             <input defaultValue={row.original.id} name="id" type="hidden" />
             <Button
-              className="w-full p-0 h-4 gap-x-2 justify-start"
+              className="mx-auto p-0 h-4 gap-x-2 justify-start hover:text-destructive"
+              tooltip="Delete Params"
               type="submit"
               variant="none"
             >

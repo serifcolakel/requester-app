@@ -10,7 +10,9 @@ import { getRequestColorClass } from "@/components/screens/requests/helpers";
 import RequestTabs from "@/components/screens/requests/request.tabs";
 import RequestIcon from "@/components/screens/requests/request-icon";
 import { Button } from "@/components/ui/button";
-import HighlightedInput from "@/components/ui/highlight-input";
+import HighlightedInput, {
+  getOptionValue,
+} from "@/components/ui/highlight-input";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -20,11 +22,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useToast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
+import { getAuthorizationByRequestId } from "@/services/authorization/actions";
+import { getRequestHeader } from "@/services/headers/actions";
+import { getRequestParams } from "@/services/params/actions";
 import { updateRequest } from "@/services/requests/actions";
 import { REQUEST_TYPE_OPTIONS } from "@/services/requests/constants";
+import { fetcher } from "@/services/response";
 import { getVariablesAtom } from "@/store/async-atoms";
-import { sleep } from "@/utils/async.utils";
 import { Collection, Method, Request } from "@prisma/client";
 
 type Props = {
@@ -33,6 +39,8 @@ type Props = {
 };
 
 export default function Requests({ request, collection }: Props) {
+  const { toast } = useToast();
+
   const [response] = useAtom(getVariablesAtom);
 
   const [saving, setSaving] = useState(false);
@@ -81,11 +89,66 @@ export default function Requests({ request, collection }: Props) {
       : [];
 
   const handleSendRequest = async () => {
-    setSending(true);
+    try {
+      setSending(true);
 
-    await sleep(1000);
+      const [params, header, auth] = await Promise.all([
+        getRequestParams(selectedRequest.id),
+        getRequestHeader(selectedRequest.id),
+        getAuthorizationByRequestId(selectedRequest.id),
+      ]);
 
-    setSending(false);
+      const url = new URL(getOptionValue(selectedRequest.url, options));
+
+      if (params.data) {
+        params.data.forEach((param) => {
+          url.searchParams.append(param.key.replace(" ", "-"), param.value);
+        });
+      }
+
+      const headers: Record<string, string> = {};
+
+      if (header.data) {
+        header.data.forEach((h) => {
+          headers[h.key.replace(" ", "-")] = h.value;
+        });
+      }
+
+      if (auth.data) {
+        headers.Authorization = `${auth.data[0].type} ${getOptionValue(auth.data[0].token, options)}`;
+      }
+
+      const startTime = window.performance.now();
+
+      const result = await fetcher(url, {
+        method: selectedRequest.method,
+        headers,
+      });
+
+      const endTime = window.performance.now();
+
+      const diff = endTime - startTime;
+
+      toast({
+        description: `Request completed in ${diff.toFixed(2)}ms`,
+        title: result.success ? "Success" : "Error",
+        variant: result.success ? "success" : "destructive",
+      });
+    } catch (error) {
+      let message = "Failed to send request";
+
+      if (error instanceof Error) {
+        message = error.message;
+      }
+
+      toast({
+        description: message,
+        variant: "destructive",
+        title: "Error",
+      });
+    } finally {
+      setSending(false);
+    }
   };
 
   return (

@@ -10,7 +10,11 @@ import EmptyState from "@/components/empty-states/empty.state";
 import AddBody from "@/components/screens/body/add.body";
 import EditBody from "@/components/screens/body/edit.body";
 import { Button } from "@/components/ui/button";
-import { createNewBody, getRequestBody } from "@/services/body/actions";
+import {
+  createNewBody,
+  getRequestBody,
+  updateBody,
+} from "@/services/body/actions";
 import Editor, { OnChange } from "@monaco-editor/react";
 import { Body, Request } from "@prisma/client";
 
@@ -33,9 +37,9 @@ export default function BodyPage({ request, handleToogle }: Props) {
     setLoading(true);
     const res = await getRequestBody(request.id);
 
-    if (res.data && res.data?.[0]) {
-      setEditorValue(res.data[0].content);
-      setBodyDetail(res.data[0]);
+    if (res.data && res.data && res.data.content) {
+      setEditorValue(res.data.content);
+      setBodyDetail(res.data);
     }
 
     handleToogle(false);
@@ -50,10 +54,18 @@ export default function BodyPage({ request, handleToogle }: Props) {
     setEditorValue(value);
   };
 
-  const hanleCreate = async (formData: FormData) => {
+  const handleCreate = async (formData: FormData) => {
     const res = await createNewBody(formData);
 
-    if (res.success) {
+    if (res.data) {
+      await prepareBody();
+    }
+  };
+
+  const handleUpdate = async (formData: FormData) => {
+    const res = await updateBody(formData);
+
+    if (res.data) {
       await prepareBody();
     }
   };
@@ -72,7 +84,7 @@ export default function BodyPage({ request, handleToogle }: Props) {
     <div className="space-y-4 h-full">
       {!bodyDetail ? (
         <EmptyState>
-          <AddBody action={hanleCreate} requestId={request.id}>
+          <AddBody action={handleCreate} requestId={request.id}>
             <Button tooltip="Add New Body" type="submit">
               <span className="sr-only">Add New Body</span>
               <Plus className="w-4 h-4" />
@@ -92,20 +104,21 @@ export default function BodyPage({ request, handleToogle }: Props) {
           />
           {bodyDetail && hasChanged && editorValue && (
             <EditBody
+              action={handleUpdate}
               content={editorValue}
               id={bodyDetail.id}
               requestId={request.id}
               type={bodyDetail.type}
             >
               <Button
-                className="absolute py-0 px-1 z-50 right-2 top-1/2 transform -translate-y-1/2 hover:text-primary"
+                className="absolute p-4 z-50 bottom-4 right-4 hover:text-primary"
                 ref={buttonRef}
                 size="xs"
                 tooltip="You have unsaved changes"
                 type="submit"
                 variant="icon"
               >
-                <Save className="w-4 h-4" />
+                <Save className="w-6 h-6" />
               </Button>
             </EditBody>
           )}

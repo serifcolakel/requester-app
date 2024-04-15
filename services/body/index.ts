@@ -36,9 +36,9 @@ export const getAllBody = async (): Promise<BaseServiceResponse<Body[]>> => {
  * */
 export const getRequestBodyById = async (
   requestId: string
-): Promise<BaseServiceResponse<Body[]>> => {
+): Promise<BaseServiceResponse<Body>> => {
   try {
-    const data = await db.body.findMany({
+    const data = await db.body.findFirst({
       where: {
         requestId,
       },

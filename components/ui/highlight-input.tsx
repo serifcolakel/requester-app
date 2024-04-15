@@ -40,11 +40,7 @@ export const getOptionValue = (value: string, options: Props["options"]) => {
     .map((word) => {
       if (word.match(REGEX) !== null) {
         const foundOption = options.find(
-          (option) =>
-            option.name ===
-            word.replace(REGEX, (match) =>
-              match.replace("{{", "").replace("}}", "")
-            )
+          (option) => option.name === replaceValue(word)
         );
 
         return foundOption?.value || "";

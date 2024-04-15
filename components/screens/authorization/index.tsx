@@ -26,6 +26,7 @@ import {
   updateAuthorization,
 } from "@/services/authorization/actions";
 import { getVariablesAtom } from "@/store/async-atoms";
+import { isEqual } from "@/utils/comparison.utils";
 import { Auth, Request } from "@prisma/client";
 
 type Props = {
@@ -68,10 +69,10 @@ export default function AuthorizationPage({ request, handleToogle }: Props) {
       (option) => option.value === selectedAuthorization
     ) || {};
 
-  const isEqual = token === authDetail?.token;
+  const equal = isEqual(token, authDetail?.token);
 
   const autoSubmit = () => {
-    if (isEqual) return;
+    if (equal) return;
 
     buttonRef.current?.click();
 
@@ -83,7 +84,7 @@ export default function AuthorizationPage({ request, handleToogle }: Props) {
     }, 250);
   };
 
-  const hasChanged = token !== authDetail?.token;
+  const hasChanged = !isEqual(token, authDetail?.token);
 
   const options =
     response.state === "hasData"

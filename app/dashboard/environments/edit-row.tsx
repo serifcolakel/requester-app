@@ -3,6 +3,7 @@ import { Save } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { isEqual } from "@/utils/comparison.utils";
 
 type Props<T extends object> = {
   row: T;
@@ -35,7 +36,7 @@ export default function EditRow<T extends object>({
     setValue(initialValue);
   }, [initialValue]);
 
-  const hasChanged = initialValue !== value;
+  const hasChanged = !isEqual(initialValue, value);
 
   const className = hasChanged ? " text-red-500 " : "";
 
@@ -48,7 +49,7 @@ export default function EditRow<T extends object>({
           if (hasChanged && autoSave) {
             setTimeout(() => {
               buttonRef.current?.click();
-            }, 500);
+            }, 50);
           }
         }}
         onChange={(e) => {

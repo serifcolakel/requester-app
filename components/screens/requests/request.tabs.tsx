@@ -6,6 +6,7 @@ import Authorization from "@/components/screens/authorization";
 import BodyPage from "@/components/screens/body";
 import Headers from "@/components/screens/headers";
 import Params from "@/components/screens/params";
+import TestPage from "@/components/screens/test";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Request } from "@prisma/client";
 
@@ -22,7 +23,7 @@ export default function RequestTabs({ request }: Props) {
 
   return (
     <Tabs defaultValue="params">
-      <TabsList className="grid w-full grid-cols-4">
+      <TabsList className="grid w-full grid-cols-5">
         <TabsTrigger disabled={isDisabled} value="params">
           Params
         </TabsTrigger>
@@ -34,6 +35,9 @@ export default function RequestTabs({ request }: Props) {
         </TabsTrigger>
         <TabsTrigger disabled={isDisabled} value="body">
           Body
+        </TabsTrigger>
+        <TabsTrigger disabled={isDisabled} value="tests">
+          Tests
         </TabsTrigger>
       </TabsList>
       <TabsContent className="overflow-y-auto" value="params">
@@ -47,6 +51,9 @@ export default function RequestTabs({ request }: Props) {
       </TabsContent>
       <TabsContent value="body">
         <BodyPage handleToogle={handleToogle} request={request} />
+      </TabsContent>
+      <TabsContent value="tests">
+        <TestPage handleToogle={handleToogle} request={request} />
       </TabsContent>
     </Tabs>
   );

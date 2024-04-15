@@ -23,14 +23,20 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
+import useTest from "@/hooks/useTest";
 import { cn } from "@/lib/utils";
 import { getAuthorizationByRequestId } from "@/services/authorization/actions";
+import { getRequestBody } from "@/services/body/actions";
 import { getRequestHeader } from "@/services/headers/actions";
 import { getRequestParams } from "@/services/params/actions";
 import { updateRequest } from "@/services/requests/actions";
 import { REQUEST_TYPE_OPTIONS } from "@/services/requests/constants";
 import { fetcher } from "@/services/response";
+import { getRequestTest } from "@/services/test/actions";
 import { getVariablesAtom } from "@/store/async-atoms";
+import { isEqual } from "@/utils/comparison.utils";
+import { getErrorMessage } from "@/utils/error.utils";
+import { replaceSpaces } from "@/utils/string.utils";
 import { Collection, Method, Request } from "@prisma/client";
 
 type Props = {
@@ -40,6 +46,8 @@ type Props = {
 
 export default function Requests({ request, collection }: Props) {
   const { toast } = useToast();
+
+  const { executeTest } = useTest();
 
   const [response] = useAtom(getVariablesAtom);
 
@@ -63,14 +71,14 @@ export default function Requests({ request, collection }: Props) {
     }));
   };
 
-  const isEqual = JSON.stringify(selectedRequest) === JSON.stringify(request);
+  const equal = isEqual(selectedRequest, request);
 
   useEffect(() => {
     setSelectedRequest(request);
   }, [request]);
 
   const autoSubmit = () => {
-    if (isEqual) return;
+    if (equal) return;
 
     setSaving(true);
     setTimeout(() => {
@@ -92,17 +100,19 @@ export default function Requests({ request, collection }: Props) {
     try {
       setSending(true);
 
-      const [params, header, auth] = await Promise.all([
+      const [params, header, auth, body, test] = await Promise.all([
         getRequestParams(selectedRequest.id),
         getRequestHeader(selectedRequest.id),
         getAuthorizationByRequestId(selectedRequest.id),
+        getRequestBody(selectedRequest.id),
+        getRequestTest(selectedRequest.id),
       ]);
 
       const url = new URL(getOptionValue(selectedRequest.url, options));
 
       if (params.data) {
         params.data.forEach((param) => {
-          url.searchParams.append(param.key.replace(" ", "-"), param.value);
+          url.searchParams.append(replaceSpaces(param.key), param.value);
         });
       }
 
@@ -110,7 +120,7 @@ export default function Requests({ request, collection }: Props) {
 
       if (header.data) {
         header.data.forEach((h) => {
-          headers[h.key.replace(" ", "-")] = h.value;
+          headers[replaceSpaces(h.key)] = h.value;
         });
       }
 
@@ -118,15 +128,32 @@ export default function Requests({ request, collection }: Props) {
         headers.Authorization = `${auth.data[0].type} ${getOptionValue(auth.data[0].token, options)}`;
       }
 
+      let bodyValue = "";
+
+      if (body?.data && body?.data.content) {
+        bodyValue = body.data.content;
+      }
+
       const startTime = window.performance.now();
 
       const result = await fetcher(url, {
         method: selectedRequest.method,
         headers,
+        body: bodyValue,
       });
+
+      if (test.data?.script) {
+        const testResults = await executeTest({
+          test: test.data?.script,
+          result,
+        });
+
+        window.console.log({ testResults });
+      }
 
       const endTime = window.performance.now();
 
+      // TODO (serif): it will be added for logger db
       const diff = endTime - startTime;
 
       toast({
@@ -135,14 +162,8 @@ export default function Requests({ request, collection }: Props) {
         variant: result.success ? "success" : "destructive",
       });
     } catch (error) {
-      let message = "Failed to send request";
-
-      if (error instanceof Error) {
-        message = error.message;
-      }
-
       toast({
-        description: message,
+        description: getErrorMessage(error, "Failed to send request"),
         variant: "destructive",
         title: "Error",
       });
@@ -180,7 +201,7 @@ export default function Requests({ request, collection }: Props) {
           ))}
           <Button
             className="w-full gap-x-2"
-            disabled={isEqual}
+            disabled={equal}
             ref={buttonRef}
             type="submit"
             variant="secondary"

@@ -123,3 +123,11 @@ model Body {
   updatedAt DateTime @updatedAt
   requestId String
 }
+
+model Test {
+  id        String   @id @default(uuid()) @map("_id")
+  script    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  requestId String
+}

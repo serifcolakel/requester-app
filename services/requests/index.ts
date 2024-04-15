@@ -4,6 +4,10 @@
 
 import { db } from "@/lib/db";
 import { createAuthorization } from "@/services/authorization";
+import { getAuthorizationByRequestId } from "@/services/authorization/actions";
+import { getRequestBody } from "@/services/body/actions";
+import { getRequestHeader } from "@/services/headers/actions";
+import { getRequestParams } from "@/services/params/actions";
 import { CreateRequest, UpdateRequest } from "@/services/requests/types";
 import { BaseServiceResponse } from "@/types";
 import type { Request } from "@prisma/client";
@@ -191,6 +195,49 @@ export const removeRequest = async (
     return {
       data: null,
       message: "Request not deleted",
+      success: false,
+    };
+  }
+};
+
+export const getAllRequestOptions = async (requestId: string) => {
+  try {
+    const request = await db.request.findUnique({
+      where: {
+        id: requestId,
+      },
+    });
+
+    if (!request) {
+      return {
+        data: null,
+        message: "Request not retrieved",
+        success: false,
+      };
+    }
+
+    const [params, header, auth, body] = await Promise.all([
+      getRequestParams(request.id),
+      getRequestHeader(request.id),
+      getAuthorizationByRequestId(request.id),
+      getRequestBody(request.id),
+    ]);
+
+    return {
+      data: {
+        request,
+        params: params.data,
+        header: header.data,
+        auth: auth.data,
+        body: body.data,
+      },
+      message: "Request retrieved",
+      success: true,
+    };
+  } catch (error) {
+    return {
+      data: null,
+      message: "Request not retrieved",
       success: false,
     };
   }

@@ -18,7 +18,7 @@ export default async function Page({ params }: { params: { id: string[] } }) {
   }
 
   return (
-    <div className="p-4">
+    <div>
       {request && collection ? (
         <Requests collection={collection} request={request} />
       ) : null}

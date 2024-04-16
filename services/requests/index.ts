@@ -9,6 +9,7 @@ import { getRequestBody } from "@/services/body/actions";
 import { getRequestHeader } from "@/services/headers/actions";
 import { getRequestParams } from "@/services/params/actions";
 import { CreateRequest, UpdateRequest } from "@/services/requests/types";
+import { getRequestTest } from "@/services/test/actions";
 import { BaseServiceResponse } from "@/types";
 import type { Request } from "@prisma/client";
 /**
@@ -216,11 +217,12 @@ export const getAllRequestOptions = async (requestId: string) => {
       };
     }
 
-    const [params, header, auth, body] = await Promise.all([
+    const [params, header, auth, body, test] = await Promise.all([
       getRequestParams(request.id),
       getRequestHeader(request.id),
       getAuthorizationByRequestId(request.id),
       getRequestBody(request.id),
+      getRequestTest(request.id),
     ]);
 
     return {
@@ -230,6 +232,7 @@ export const getAllRequestOptions = async (requestId: string) => {
         header: header.data,
         auth: auth.data,
         body: body.data,
+        test: test.data,
       },
       message: "Request retrieved",
       success: true,

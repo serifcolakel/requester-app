@@ -9,6 +9,8 @@ export async function fetcher(
   options?: RequestInit
 ) {
   try {
+    const startTimer = Date.now();
+
     const body =
       options?.body && !ignoredBodyMethods.includes(options.method || "")
         ? options.body
@@ -19,12 +21,17 @@ export async function fetcher(
       body,
     });
 
+    const data = await res.json();
+
+    const endTimer = Date.now();
+
     return {
-      data: await res.json(),
+      data,
       status: res.status,
       statusText: res.statusText,
       parsedHeaders: Object.fromEntries(res.headers),
       success: res.ok,
+      responseTime: endTimer - startTimer,
     };
   } catch (error) {
     return {
@@ -33,6 +40,7 @@ export async function fetcher(
       statusText: getErrorMessage(error, "Failed to fetch"),
       parsedHeaders: {},
       success: false,
+      responseTime: 0,
     };
   }
 }

@@ -51,12 +51,12 @@ export default function AuthorizationPage({ request, handleToogle }: Props) {
     handleToogle(true);
     const { data, success } = await getAuthorizationByRequestId(request.id);
 
-    if (data.length === 0 || !data[0].token || !success) {
+    if (!data?.token || !success) {
       return;
     }
 
-    setAuthDetail(data[0]);
-    setToken(data[0].token);
+    setAuthDetail(data);
+    setToken(data.token);
     handleToogle(false);
   };
 

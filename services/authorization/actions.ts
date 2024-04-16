@@ -66,7 +66,7 @@ export const getAuthorizationByRequestId = async (requestId: string) => {
     }
 
     return {
-      data: [],
+      data: null,
       message,
       success: false,
     };
@@ -76,7 +76,7 @@ export const getAuthorizationByRequestId = async (requestId: string) => {
 
   return {
     ...response,
-    data: response.data || [],
+    data: response.data,
   };
 };
 

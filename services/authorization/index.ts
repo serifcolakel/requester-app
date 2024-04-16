@@ -39,9 +39,9 @@ export const getAllAuthorizations = async (): Promise<
  * */
 export const getAuthorizations = async (
   requestId: string
-): Promise<BaseServiceResponse<Auth[]>> => {
+): Promise<BaseServiceResponse<Auth>> => {
   try {
-    const Authorizations = await db.auth.findMany({
+    const Authorizations = await db.auth.findFirst({
       where: {
         requestId,
       },

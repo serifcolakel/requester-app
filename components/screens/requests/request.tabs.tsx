@@ -40,10 +40,10 @@ export default function RequestTabs({ request }: Props) {
           Tests
         </TabsTrigger>
       </TabsList>
-      <TabsContent className="overflow-y-auto" value="params">
+      <TabsContent className="overflow-y-auto px-4" value="params">
         <Params handleToogle={handleToogle} request={request} />
       </TabsContent>
-      <TabsContent value="headers">
+      <TabsContent className="overflow-y-auto px-4" value="headers">
         <Headers handleToogle={handleToogle} request={request} />
       </TabsContent>
       <TabsContent value="authorization">

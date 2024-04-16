@@ -9,12 +9,18 @@ import { Loader, Save, Send } from "lucide-react";
 import { getRequestColorClass } from "@/components/screens/requests/helpers";
 import RequestTabs from "@/components/screens/requests/request.tabs";
 import RequestIcon from "@/components/screens/requests/request-icon";
+import ResponsePage from "@/components/screens/response";
 import { Button } from "@/components/ui/button";
 import HighlightedInput, {
   getOptionValue,
 } from "@/components/ui/highlight-input";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "@/components/ui/resizable";
 import {
   Select,
   SelectContent,
@@ -25,15 +31,13 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import useTest from "@/hooks/useTest";
 import { cn } from "@/lib/utils";
-import { getAuthorizationByRequestId } from "@/services/authorization/actions";
-import { getRequestBody } from "@/services/body/actions";
-import { getRequestHeader } from "@/services/headers/actions";
-import { getRequestParams } from "@/services/params/actions";
+import { getAllRequestOptions } from "@/services/requests";
 import { updateRequest } from "@/services/requests/actions";
 import { REQUEST_TYPE_OPTIONS } from "@/services/requests/constants";
 import { fetcher } from "@/services/response";
-import { getRequestTest } from "@/services/test/actions";
 import { getVariablesAtom } from "@/store/async-atoms";
+import { editorValuesAtom } from "@/store/atoms";
+import { RequestInfo } from "@/types/state.types";
 import { isEqual } from "@/utils/comparison.utils";
 import { getErrorMessage } from "@/utils/error.utils";
 import { replaceSpaces } from "@/utils/string.utils";
@@ -47,6 +51,8 @@ type Props = {
 export default function Requests({ request, collection }: Props) {
   const { toast } = useToast();
 
+  const [editorValues] = useAtom(editorValuesAtom);
+
   const { executeTest } = useTest();
 
   const [response] = useAtom(getVariablesAtom);
@@ -56,6 +62,10 @@ export default function Requests({ request, collection }: Props) {
   const [sending, setSending] = useState(false);
 
   const buttonRef = useRef<HTMLButtonElement>(null);
+
+  const [requestInfo, setRequestInfo] = useState<RequestInfo>({
+    testResults: [],
+  });
 
   const [selectedRequest, setSelectedRequest] = useState<Request>(request);
 
@@ -100,41 +110,38 @@ export default function Requests({ request, collection }: Props) {
     try {
       setSending(true);
 
-      const [params, header, auth, body, test] = await Promise.all([
-        getRequestParams(selectedRequest.id),
-        getRequestHeader(selectedRequest.id),
-        getAuthorizationByRequestId(selectedRequest.id),
-        getRequestBody(selectedRequest.id),
-        getRequestTest(selectedRequest.id),
-      ]);
+      const { data } = await getAllRequestOptions(selectedRequest.id);
+
+      const { auth, body, header, params, test } = data || {};
 
       const url = new URL(getOptionValue(selectedRequest.url, options));
 
-      if (params.data) {
-        params.data.forEach((param) => {
+      if (params) {
+        params.forEach((param) => {
           url.searchParams.append(replaceSpaces(param.key), param.value);
         });
       }
 
       const headers: Record<string, string> = {};
 
-      if (header.data) {
-        header.data.forEach((h) => {
+      if (header) {
+        header.forEach((h) => {
           headers[replaceSpaces(h.key)] = h.value;
         });
       }
 
-      if (auth.data) {
-        headers.Authorization = `${auth.data[0].type} ${getOptionValue(auth.data[0].token, options)}`;
+      if (auth) {
+        headers.Authorization = `${auth.type} ${getOptionValue(auth.token, options)}`;
       }
 
       let bodyValue = "";
 
-      if (body?.data && body?.data.content) {
-        bodyValue = body.data.content;
+      if (editorValues.body) {
+        bodyValue =
+          editorValues.body === body?.content
+            ? body.content
+            : editorValues.body;
       }
-
-      const startTime = window.performance.now();
 
       const result = await fetcher(url, {
         method: selectedRequest.method,
@@ -142,25 +149,31 @@ export default function Requests({ request, collection }: Props) {
         body: bodyValue,
       });
 
-      if (test.data?.script) {
+      setRequestInfo((prev) => ({
+        ...prev,
+        result,
+      }));
+
+      if (editorValues.test) {
         const testResults = await executeTest({
-          test: test.data?.script,
+          test:
+            editorValues.test === test?.script
+              ? test.script
+              : editorValues.test,
           result,
         });
 
-        window.console.log({ testResults });
+        setRequestInfo((prev) => ({
+          ...prev,
+          testResults,
+        }));
       }
 
-      const endTime = window.performance.now();
-
-      // TODO (serif): it will be added for logger db
-      const diff = endTime - startTime;
-
-      toast({
-        description: `Request completed in ${diff.toFixed(2)}ms`,
-        title: result.success ? "Success" : "Error",
-        variant: result.success ? "success" : "destructive",
-      });
+      // toast({
+      //   description: `Request completed in ${diff.toFixed(2)}ms`,
+      //   title: result.success ? "Success" : "Error",
+      //   variant: result.success ? "success" : "destructive",
+      // });
     } catch (error) {
       toast({
         description: getErrorMessage(error, "Failed to send request"),
@@ -173,8 +186,8 @@ export default function Requests({ request, collection }: Props) {
   };
 
   return (
-    <div className="space-y-4">
-      <header className="flex flex-row gap-y-4 items-center justify-between">
+    <div className="space-y-4 pt-4">
+      <header className="flex flex-row gap-y-4 items-center justify-between px-4">
         <div className="flex flex-1 w-full flex-row gap-x-4">
           <div className="border rounded-lg px-2 bg-blue-50 border-blue-800 grid items-center">
             <RequestIcon className="!h-5" />
@@ -216,7 +229,7 @@ export default function Requests({ request, collection }: Props) {
           </Button>
         </form>
       </header>
-      <div className="grid grid-cols-12 items-center justify-center gap-x-1">
+      <div className="grid grid-cols-12 items-center justify-center gap-x-1 px-4">
         <div className="col-span-2">
           <Select
             defaultValue={selectedRequest.method}
@@ -273,7 +286,18 @@ export default function Requests({ request, collection }: Props) {
           </Button>
         </div>
       </div>
-      <RequestTabs request={request} />
+      <ResizablePanelGroup
+        className="min-h-[80vh] !overflow-y-auto w-full"
+        direction="vertical"
+      >
+        <ResizablePanel className="px-4" defaultSize={75} minSize={5}>
+          <RequestTabs request={request} />
+        </ResizablePanel>
+        <ResizableHandle withHandle />
+        <ResizablePanel defaultSize={10} minSize={10}>
+          <ResponsePage requestInfo={requestInfo} />
+        </ResizablePanel>
+      </ResizablePanelGroup>
     </div>
   );
 }

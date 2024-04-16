@@ -3,6 +3,7 @@ import { useAtom } from "jotai";
 import { fetcher } from "@/services/response";
 import {
   createNewVariable,
+  deleteVariable,
   updateVariable,
 } from "@/services/variables/actions";
 import { getVariablesAtom, useSelectedEnvironment } from "@/store/async-atoms";
@@ -101,7 +102,9 @@ export default function useTest() {
 
         form.append("id", variable.id);
 
-        await updateVariable(form);
+        await deleteVariable(form);
+
+        await revalidateEnvironment();
       }
     },
   };

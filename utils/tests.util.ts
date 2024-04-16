@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-implied-eval */
 import { fetcher } from "@/services/response";
-import { Handler, TestResult } from "@/types";
+import { Handler, Requester, TestResult } from "@/types";
 
 const blackList: string[] = [
   "process",
@@ -35,8 +35,8 @@ class TestExecutor {
       }
     });
 
-    const requester = {
-      test: (message: string, callback: () => void) => {
+    const requester: Requester = {
+      test: (message, callback) => {
         if (!callback) {
           throw new Error(
             "Requester test function requires a callback function"
@@ -50,7 +50,7 @@ class TestExecutor {
       response: {
         to: {
           have: {
-            status: (status: unknown) => {
+            status: (status) => {
               const passed = status === this.result.status;
 
               const result = {
@@ -70,23 +70,24 @@ class TestExecutor {
         },
         data: this.result.data,
         status: this.result.status,
+        responseTime: this.result.responseTime,
       },
       environment: {
-        set: (key: string, value: unknown) => {
+        set: (key, value) => {
           this.handlers.environment.set(key, value);
         },
-        replace: (key: string, value: unknown) => {
+        replace: (key, value) => {
           this.handlers.environment.replace(key, value);
         },
-        get: (key: string) => {
+        get: (key) => {
           return this.handlers.environment.get(key);
         },
-        unset: (key: string) => {
+        unset: (key) => {
           this.handlers.environment.unset(key);
         },
       },
       helpers: {
-        isEqual: (value: unknown, expected: unknown) => {
+        isEqual: (value, expected) => {
           const passed = value === expected;
 
           const result = {
@@ -102,6 +103,114 @@ class TestExecutor {
 
           this.testResults.push(result);
         },
+      },
+      expect: (value) => {
+        return {
+          to: {
+            be: {
+              below: (expected) => {
+                const passed = Number(value) < expected;
+
+                const result = {
+                  expected,
+                  actual: value,
+                  passed,
+                  resultMessage: this.message,
+                };
+
+                if (!passed) {
+                  result.resultMessage = `${this.message} | AssertionError: Expected ${value} to be below ${expected}`;
+                }
+
+                this.testResults.push(result);
+              },
+              above: (expected) => {
+                const passed = Number(value) > expected;
+
+                const result = {
+                  expected,
+                  actual: value,
+                  passed,
+                  resultMessage: this.message,
+                };
+
+                if (!passed) {
+                  result.resultMessage = `${this.message} | AssertionError: Expected ${value} to be above ${expected}`;
+                }
+
+                this.testResults.push(result);
+              },
+              equal: (expected) => {
+                const passed = value === expected;
+
+                const result = {
+                  expected,
+                  actual: value,
+                  passed,
+                  resultMessage: this.message,
+                };
+
+                if (!passed) {
+                  result.resultMessage = `${this.message} | AssertionError: Expected ${value} to be equal to ${expected}`;
+                }
+
+                this.testResults.push(result);
+              },
+            },
+            not: {
+              be: {
+                below: (expected) => {
+                  const passed = Number(value) >= expected;
+
+                  const result = {
+                    expected,
+                    actual: value,
+                    passed,
+                    resultMessage: this.message,
+                  };
+
+                  if (!passed) {
+                    result.resultMessage = `${this.message} | AssertionError: Expected ${value} to be above or equal to ${expected}`;
+                  }
+
+                  this.testResults.push(result);
+                },
+                above: (expected) => {
+                  const passed = Number(value) <= expected;
+
+                  const result = {
+                    expected,
+                    actual: value,
+                    passed,
+                    resultMessage: this.message,
+                  };
+
+                  if (!passed) {
+                    result.resultMessage = `${this.message} | AssertionError: Expected ${value} to be below or equal to ${expected}`;
+                  }
+
+                  this.testResults.push(result);
+                },
+                equal: (expected) => {
+                  const passed = value !== expected;
+
+                  const result = {
+                    expected,
+                    actual: value,
+                    passed,
+                    resultMessage: this.message,
+                  };
+
+                  if (!passed) {
+                    result.resultMessage = `${this.message} | AssertionError: Expected ${value} to be different from ${expected}`;
+                  }
+
+                  this.testResults.push(result);
+                },
+              },
+            },
+          },
+        };
       },
     };
 

@@ -17,7 +17,7 @@ import {
   updateBody,
 } from "@/services/body/actions";
 import { editorValuesAtom } from "@/store/atoms";
-import Editor, { OnChange, OnMount } from "@monaco-editor/react";
+import Editor, { OnChange } from "@monaco-editor/react";
 import { Body, Request } from "@prisma/client";
 
 type Props = {
@@ -25,18 +25,12 @@ type Props = {
   handleToogle: (condition: boolean) => void;
 };
 
-type ArgumentTypes<F extends Function> = F extends (...args: infer A) => any
-  ? A
-  : never;
-
 export default function BodyPage({ request, handleToogle }: Props) {
   const [editorValues, setEditorValues] = useAtom(editorValuesAtom);
 
   const [loading, setLoading] = useState(false);
 
   const buttonRef = useRef<HTMLButtonElement>(null);
-
-  const editorRef = useRef<ArgumentTypes<OnMount>[0]>();
 
   const [bodyDetail, setBodyDetail] = useState<Body>();
 
@@ -68,10 +62,6 @@ export default function BodyPage({ request, handleToogle }: Props) {
     });
   };
 
-  const handleOnMount: OnMount = (editor, monaco) => {
-    editorRef.current = editor;
-  };
-
   const handleCreate = async (formData: FormData) => {
     const res = await createNewBody(formData);
 
@@ -98,9 +88,6 @@ export default function BodyPage({ request, handleToogle }: Props) {
 
   const hasChanged = editorValues.body !== bodyDetail?.content;
 
-  // add custom type for editorRef
-  console.log(editorRef.current);
-
   return (
     <div className="space-y-4 h-full">
       {!bodyDetail ? (
@@ -118,9 +105,8 @@ export default function BodyPage({ request, handleToogle }: Props) {
           <Editor
             className="border overflow-hidden rounded-lg shadow-sm"
             defaultLanguage="json"
-            height="60vh"
+            height="50vh"
             onChange={handleEditorChange}
-            onMount={handleOnMount}
             value={editorValues.body}
           />
           {bodyDetail && hasChanged && editorValues.body && (

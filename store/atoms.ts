@@ -19,3 +19,13 @@ export const resetAtom = atom(null, (get, set) => {
 export const incrementByAtom = atom(null, (get, set, by: number) => {
   set(counterAtom, get(counterAtom) + by);
 });
+
+export const editorValuesAtom = atom<{
+  body: string | undefined;
+  test: string | undefined;
+}>({
+  body: undefined,
+  test: undefined,
+});
+
+editorValuesAtom.debugLabel = "editorValues";

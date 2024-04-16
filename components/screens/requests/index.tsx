@@ -51,7 +51,7 @@ type Props = {
 export default function Requests({ request, collection }: Props) {
   const { toast } = useToast();
 
-  const [editorValues] = useAtom(editorValuesAtom);
+  const [editorValues, setEditorValues] = useAtom(editorValuesAtom);
 
   const { executeTest } = useTest();
 
@@ -86,6 +86,13 @@ export default function Requests({ request, collection }: Props) {
   useEffect(() => {
     setSelectedRequest(request);
   }, [request]);
+
+  useEffect(() => {
+    setEditorValues({
+      body: "",
+      test: "",
+    });
+  }, [setEditorValues]);
 
   const autoSubmit = () => {
     if (equal) return;
@@ -134,14 +141,7 @@ export default function Requests({ request, collection }: Props) {
         headers.Authorization = `${auth.type} ${getOptionValue(auth.token, options)}`;
       }
 
-      let bodyValue = "";
-
-      if (editorValues.body) {
-        bodyValue =
-          editorValues.body === body?.content
-            ? body.content
-            : editorValues.body;
-      }
+      const bodyValue = editorValues.body || body?.content;
 
       const result = await fetcher(url, {
         method: selectedRequest.method,
@@ -154,12 +154,11 @@ export default function Requests({ request, collection }: Props) {
         result,
       }));
 
-      if (editorValues.test) {
+      const testValue = editorValues.test || test?.script;
+
+      if (testValue) {
         const testResults = await executeTest({
-          test:
-            editorValues.test === test?.script
-              ? test.script
-              : editorValues.test,
+          test: testValue,
           result,
         });
 
@@ -294,9 +293,12 @@ export default function Requests({ request, collection }: Props) {
           <RequestTabs request={request} />
         </ResizablePanel>
         <ResizableHandle withHandle />
-        <ResizablePanel defaultSize={10} minSize={10}>
-          <ResponsePage requestInfo={requestInfo} />
-        </ResizablePanel>
+
+        {!sending && (
+          <ResizablePanel defaultSize={75} minSize={12}>
+            <ResponsePage requestInfo={requestInfo} />
+          </ResizablePanel>
+        )}
       </ResizablePanelGroup>
     </div>
   );

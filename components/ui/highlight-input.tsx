@@ -118,7 +118,7 @@ export default function HighlightedInput({
                               INITIAL
                             </span>
                             <span className="text-sm text-gray-800 flex items-center gap-x-2 justify-center">
-                              <span className="font-bold">
+                              <span className="font-bold line-clamp-1 w-60 truncate text-right">
                                 {foundOption.value || "-"}
                               </span>
                               <CopyText text={foundOption.value} />
@@ -129,7 +129,7 @@ export default function HighlightedInput({
                               CURRENT
                             </span>
                             <span className="text-sm font-bold text-gray-800 flex items-center gap-x-2 justify-center">
-                              <span className="font-bold">
+                              <span className="font-bold line-clamp-1 w-60 truncate text-right">
                                 {foundOption.value || "-"}
                               </span>
                               <CopyText text={foundOption.value} />

@@ -1,3 +1,5 @@
+"use server";
+
 /**
  * @description - The file is the entry point for the Requests service
  */

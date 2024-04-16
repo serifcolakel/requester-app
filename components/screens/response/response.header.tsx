@@ -1,6 +1,7 @@
 import React from "react";
 import { Globe, TimerIcon } from "lucide-react";
 
+import { Label } from "@/components/ui/label";
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RequestInfo } from "@/types/state.types";
 
@@ -22,13 +23,26 @@ export default function ResponseHeader({ requestInfo }: Props) {
 
   return (
     <header className="flex flex-row items-center justify-between w-full">
-      <TabsList>
-        <TabsTrigger value="body">Body</TabsTrigger>
-        <TabsTrigger value="headers">Headers</TabsTrigger>
-        <TabsTrigger value="test-results">{testResultText}</TabsTrigger>
-        <TabsTrigger value="type">Type</TabsTrigger>
+      <TabsList className="w-full">
+        <TabsTrigger className="w-full" value="body">
+          Body
+        </TabsTrigger>
+        <TabsTrigger className="w-full" value="headers">
+          Headers
+        </TabsTrigger>
+        <TabsTrigger className="w-full" value="test-results">
+          {testResultText}
+        </TabsTrigger>
+        <TabsTrigger className="w-full" value="type">
+          Type
+        </TabsTrigger>
       </TabsList>
-      <div className="flex flex-row items-center justify-center divide-x">
+      <div className="w-full text-center">
+        <Label className="border-b-2 px-2 border-black" variant="h6">
+          Response Info
+        </Label>
+      </div>
+      <div className="flex flex-row items-center justify-end divide-x w-full">
         <div className="flex flex-row gap-x-2 items-center justify-center px-2">
           <Globe className="w-4 h-4" />
           <p className="text-xs text-gray-500">

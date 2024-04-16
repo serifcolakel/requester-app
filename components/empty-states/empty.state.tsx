@@ -10,6 +10,11 @@ export type EmptyStateProps = {
   description?: string;
   className?: string;
   src?: string;
+  imageProps?: {
+    height: number;
+    width: number;
+    className: string;
+  };
 };
 
 export default function EmptyState({
@@ -18,6 +23,11 @@ export default function EmptyState({
   src = "/illustration-hit-send.svg",
   title = "You don't have any items yet.",
   description = "You can create new items by clicking the button below.",
+  imageProps = {
+    height: 200,
+    width: 200,
+    className: "md:mt-20",
+  },
 }: EmptyStateProps) {
   return (
     <div
@@ -26,13 +36,7 @@ export default function EmptyState({
         className
       )}
     >
-      <Image
-        alt="No items found"
-        className="md:mt-20"
-        height={200}
-        src={src}
-        width={200}
-      />
+      <Image {...imageProps} alt="Empty State" src={src} />
       <div className="text-center">
         <Label variant="h6">{title}</Label>
       </div>

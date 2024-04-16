@@ -4,6 +4,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import { useAtom } from "jotai";
 import { Loader, Plus, Save } from "lucide-react";
 
 import EmptyState from "@/components/empty-states/empty.state";
@@ -15,7 +16,8 @@ import {
   getRequestBody,
   updateBody,
 } from "@/services/body/actions";
-import Editor, { OnChange } from "@monaco-editor/react";
+import { editorValuesAtom } from "@/store/atoms";
+import Editor, { OnChange, OnMount } from "@monaco-editor/react";
 import { Body, Request } from "@prisma/client";
 
 type Props = {
@@ -23,12 +25,18 @@ type Props = {
   handleToogle: (condition: boolean) => void;
 };
 
+type ArgumentTypes<F extends Function> = F extends (...args: infer A) => any
+  ? A
+  : never;
+
 export default function BodyPage({ request, handleToogle }: Props) {
-  const [editorValue, setEditorValue] = useState<string | undefined>();
+  const [editorValues, setEditorValues] = useAtom(editorValuesAtom);
 
   const [loading, setLoading] = useState(false);
 
   const buttonRef = useRef<HTMLButtonElement>(null);
+
+  const editorRef = useRef<ArgumentTypes<OnMount>[0]>();
 
   const [bodyDetail, setBodyDetail] = useState<Body>();
 
@@ -38,7 +46,10 @@ export default function BodyPage({ request, handleToogle }: Props) {
     const res = await getRequestBody(request.id);
 
     if (res.data && res.data && res.data.content) {
-      setEditorValue(res.data.content);
+      setEditorValues({
+        ...editorValues,
+        body: editorValues.body || res.data.content,
+      });
       setBodyDetail(res.data);
     }
 
@@ -51,7 +62,14 @@ export default function BodyPage({ request, handleToogle }: Props) {
   }, []);
 
   const handleEditorChange: OnChange = (value) => {
-    setEditorValue(value);
+    setEditorValues({
+      ...editorValues,
+      body: value,
+    });
+  };
+
+  const handleOnMount: OnMount = (editor, monaco) => {
+    editorRef.current = editor;
   };
 
   const handleCreate = async (formData: FormData) => {
@@ -78,7 +96,10 @@ export default function BodyPage({ request, handleToogle }: Props) {
     );
   }
 
-  const hasChanged = editorValue !== bodyDetail?.content;
+  const hasChanged = editorValues.body !== bodyDetail?.content;
+
+  // add custom type for editorRef
+  console.log(editorRef.current);
 
   return (
     <div className="space-y-4 h-full">
@@ -97,15 +118,15 @@ export default function BodyPage({ request, handleToogle }: Props) {
           <Editor
             className="border overflow-hidden rounded-lg shadow-sm"
             defaultLanguage="json"
-            defaultValue={JSON.stringify(request, null, 2)}
             height="60vh"
             onChange={handleEditorChange}
-            value={editorValue}
+            onMount={handleOnMount}
+            value={editorValues.body}
           />
-          {bodyDetail && hasChanged && editorValue && (
+          {bodyDetail && hasChanged && editorValues.body && (
             <EditBody
               action={handleUpdate}
-              content={editorValue}
+              content={editorValues.body}
               id={bodyDetail.id}
               requestId={request.id}
               type={bodyDetail.type}

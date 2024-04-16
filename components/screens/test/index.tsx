@@ -4,6 +4,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import { useAtom } from "jotai";
 import { Loader, Plus, Save } from "lucide-react";
 
 import EmptyState from "@/components/empty-states/empty.state";
@@ -15,6 +16,7 @@ import {
   getRequestTest,
   updateTest,
 } from "@/services/test/actions";
+import { editorValuesAtom } from "@/store/atoms";
 import Editor, { OnChange } from "@monaco-editor/react";
 import { Request, Test } from "@prisma/client";
 
@@ -24,7 +26,7 @@ type Props = {
 };
 
 export default function TestPage({ request, handleToogle }: Props) {
-  const [editorValue, setEditorValue] = useState<string | undefined>();
+  const [editorValues, setEditorValues] = useAtom(editorValuesAtom);
 
   const [loading, setLoading] = useState(false);
 
@@ -38,7 +40,10 @@ export default function TestPage({ request, handleToogle }: Props) {
     const res = await getRequestTest(request.id);
 
     if (res.data) {
-      setEditorValue(res.data.script);
+      setEditorValues({
+        ...editorValues,
+        test: editorValues.test || res.data.script,
+      });
       setTestDetail(res.data);
     }
 
@@ -51,7 +56,10 @@ export default function TestPage({ request, handleToogle }: Props) {
   }, []);
 
   const handleEditorChange: OnChange = (value) => {
-    setEditorValue(value);
+    setEditorValues({
+      ...editorValues,
+      test: value,
+    });
   };
 
   const handleCreate = async (formData: FormData) => {
@@ -78,7 +86,7 @@ export default function TestPage({ request, handleToogle }: Props) {
     );
   }
 
-  const hasChanged = editorValue !== testDetail?.script;
+  const hasChanged = editorValues.test !== testDetail?.script;
 
   return (
     <div className="space-y-4 h-full">
@@ -96,18 +104,19 @@ export default function TestPage({ request, handleToogle }: Props) {
         <div className="relative w-full">
           <Editor
             className="border overflow-hidden rounded-lg shadow-sm"
-            defaultLanguage="javascript"
+            defaultLanguage="typescript"
+            defaultPath="test.ts"
             defaultValue={JSON.stringify(request, null, 2)}
             height="60vh"
             onChange={handleEditorChange}
-            value={editorValue}
+            value={editorValues.test}
           />
-          {testDetail && hasChanged && editorValue && (
+          {testDetail && hasChanged && editorValues.test && (
             <EditTest
               action={handleUpdate}
               id={testDetail.id}
               requestId={request.id}
-              script={editorValue}
+              script={editorValues.test}
             >
               <Button
                 className="absolute p-4 z-50 bottom-4 right-4 hover:text-primary"

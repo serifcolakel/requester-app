@@ -10,6 +10,7 @@ import { Loader, Plus, Save } from "lucide-react";
 import EmptyState from "@/components/empty-states/empty.state";
 import AddTest from "@/components/screens/test/add.test";
 import EditTest from "@/components/screens/test/edit.test";
+import TestSnippets from "@/components/screens/test/test.snippets";
 import { Button } from "@/components/ui/button";
 import {
   createNewTest,
@@ -17,7 +18,8 @@ import {
   updateTest,
 } from "@/services/test/actions";
 import { editorValuesAtom } from "@/store/atoms";
-import Editor, { OnChange } from "@monaco-editor/react";
+import { ArgumentTypes } from "@/types";
+import Editor, { OnChange, OnMount } from "@monaco-editor/react";
 import { Request, Test } from "@prisma/client";
 
 type Props = {
@@ -29,6 +31,8 @@ export default function TestPage({ request, handleToogle }: Props) {
   const [editorValues, setEditorValues] = useAtom(editorValuesAtom);
 
   const [loading, setLoading] = useState(false);
+
+  const editorRef = useRef<ArgumentTypes<OnMount>[0]>();
 
   const buttonRef = useRef<HTMLButtonElement>(null);
 
@@ -53,6 +57,12 @@ export default function TestPage({ request, handleToogle }: Props) {
 
   useEffect(() => {
     prepareTest();
+
+    return () => {
+      editorRef.current?.setModel(null);
+      editorRef.current?.dispose();
+      editorRef.current = undefined;
+    };
   }, []);
 
   const handleEditorChange: OnChange = (value) => {
@@ -86,6 +96,77 @@ export default function TestPage({ request, handleToogle }: Props) {
     );
   }
 
+  const handleOnMount: OnMount = (editor, monaco) => {
+    const libUri = monaco.Uri.file("facts.d.ts");
+
+    monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
+      noSemanticValidation: true,
+      noSyntaxValidation: false,
+    });
+
+    // compiler options
+    monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
+      target: monaco.languages.typescript.ScriptTarget.ES2015,
+      allowNonTsExtensions: true,
+    });
+
+    const libSource = [
+      "declare class requester {",
+      "  static test(message: string, callback: () => void): void;",
+      "  static expect(value: unknown): {",
+      "    to: {",
+      "      be: {",
+      "        below(value: number): void;",
+      "        above(value: number): void;",
+      "        equal(value: unknown): void;",
+      "      };",
+      "      not: {",
+      "        be: {",
+      "          below(value: number): void;",
+      "          above(value: number): void;",
+      "          equal(value: unknown): void;",
+      "        };",
+      "      };",
+      "    };",
+      "  };",
+      "  static response: {",
+      "    to: {",
+      "      have: {",
+      "        status(status: number): void;",
+      "      };",
+      "    };",
+      "    data: unknown;",
+      "    status: number;",
+      "    responseTime: number;",
+      "  };",
+      "  static environment: {",
+      "    set(key: string, value: unknown): void;",
+      "    replace(key: string, value: unknown): void;",
+      "    get(key: string): unknown;",
+      "    unset(key: string): void;",
+      "  };",
+      "  static helpers: {",
+      "    isEqual(value: unknown, expected: unknown): void;",
+      "  };",
+      "}",
+    ].join("\n");
+
+    const libs = Object.keys(
+      monaco.languages.typescript.javascriptDefaults.getExtraLibs()
+    );
+
+    if (!libs.includes("facts.d.ts")) {
+      monaco.editor.createModel(libSource, "typescript", libUri);
+    }
+
+    monaco.languages.typescript.javascriptDefaults.addExtraLib(
+      libSource,
+      "facts.d.ts"
+    );
+
+    editorRef.current = editor;
+  };
+
   const hasChanged = editorValues.test !== testDetail?.script;
 
   return (
@@ -104,13 +185,14 @@ export default function TestPage({ request, handleToogle }: Props) {
         <div className="relative w-full">
           <Editor
             className="border overflow-hidden rounded-lg shadow-sm"
-            defaultLanguage="typescript"
-            defaultPath="test.ts"
+            defaultLanguage="javascript"
             defaultValue={JSON.stringify(request, null, 2)}
-            height="60vh"
+            height="50vh"
             onChange={handleEditorChange}
+            onMount={handleOnMount}
             value={editorValues.test}
           />
+          <TestSnippets />
           {testDetail && hasChanged && editorValues.test && (
             <EditTest
               action={handleUpdate}

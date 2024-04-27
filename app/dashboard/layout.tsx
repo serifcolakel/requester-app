@@ -1,10 +1,12 @@
 import React from "react";
 import { Metadata } from "next";
-import Image from "next/image";
+import Link from "next/link";
 import { redirect, RedirectType } from "next/navigation";
 
+import { Logo } from "@/assets/Icons";
 import DashboardNavigation from "@/components/dashboard-navigation";
 import { EnvironmentSwitcher } from "@/components/environment-switcher";
+import { Label } from "@/components/ui/label";
 import { UserNav } from "@/components/user-nav";
 import { paths } from "@/constants/paths";
 import { getUser } from "@/services/auth";
@@ -32,16 +34,11 @@ export default async function DashboardLayout({
     <main className="p-2 h-screen">
       <section className="flex border rounded-lg h-full">
         <aside className="w-32 flex flex-col gap-y-2 border-r p-2 h-full">
-          <div className="flex justify-center items-center h-16 w-full">
-            <Image
-              priority
-              alt="User avatar"
-              className="h-10 w-10 rounded-full"
-              height={40}
-              resource="image"
-              src="/favicon.ico"
-              width={40}
-            />
+          <div className="flex justify-center flex-col gap-y-1 items-center h-20 w-full border-b pb-2">
+            <Link href={paths.home}>
+              <Logo className="h-12 w-12 text-primary border p-1 rounded-full" />
+            </Link>
+            <Label className="ml-2">Requester</Label>
           </div>
           <DashboardNavigation />
         </aside>

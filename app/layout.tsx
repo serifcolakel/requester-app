@@ -1,17 +1,16 @@
-import { Provider } from "jotai";
-import type { Metadata } from "next";
+"use client";
+
+import { createStore, Provider } from "jotai";
+import { DevTools } from "jotai-devtools";
 import { Inter } from "next/font/google";
 
 import "./globals.css";
 
 import { Toaster } from "@/components/ui/toaster";
 
-const inter = Inter({ subsets: ["latin"] });
+const customStore = createStore();
 
-export const metadata: Metadata = {
-  title: "Requester Application",
-  description: "Manage your requests with ease.",
-};
+const inter = Inter({ subsets: ["latin"] });
 
 export default function RootLayout({
   children,
@@ -21,7 +20,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Provider>
+        <Provider store={customStore}>
+          <DevTools store={customStore} />
           {children}
           <Toaster />
         </Provider>

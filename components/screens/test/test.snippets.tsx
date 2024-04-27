@@ -77,7 +77,7 @@ export default function TestSnippets() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-          className="absolute p-4 z-50 bottom-4 right-20 hover:text-primary"
+          className="absolute p-4 z-50 top-2 right-36 hover:text-primary"
           size="xs"
           tooltip="Insert Snippet"
           variant="icon"

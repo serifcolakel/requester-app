@@ -201,7 +201,7 @@ export default function TestPage({ request, handleToogle }: Props) {
               script={editorValues.test}
             >
               <Button
-                className="absolute p-4 z-50 bottom-4 right-4 hover:text-primary"
+                className="absolute p-4 z-50 top-2 right-48 hover:text-primary"
                 ref={buttonRef}
                 size="xs"
                 tooltip="You have unsaved changes"
